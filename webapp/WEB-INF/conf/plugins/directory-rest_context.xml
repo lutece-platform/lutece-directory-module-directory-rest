@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="xmlRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.XmlRecordHandler" />
+    <bean id="xmlRecordsHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.XmlRecordsListHandler" />
+    <bean id="jsonRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.JsonRecordHandler" />
+    <bean id="jsonRecordsHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.JsonRecordsListHandler" />
+    <bean id="insertRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.InsertRecordHandler" />
+
+    <bean id="listUriHandlers" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.UriHandlersRegistry" >
+        <property name="handlersList">
+            <list>
+                <ref bean="xmlRecordHandler" />
+                <ref bean="xmlRecordsHandler" />
+                <ref bean="jsonRecordHandler" />
+                <ref bean="jsonRecordsHandler" />
+                <ref bean="insertRecordHandler" />
+            </list>
+        </property>
+    </bean>
+
+
+</beans>

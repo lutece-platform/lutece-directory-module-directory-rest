@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <title>Module REST pour le plugin Directory</title>
+    </properties>
+    <body>
+        <section name="Module REST pour le plugin Directory">
+            <subsection name="Introduction">
+                <p>
+                    Ce module permet d'exposer, sous forme de web services REST
+	            les informations contenus dans les annuaires du plugin Directory. 
+                </p>
+                <p>
+                    Ce module implémente que la méthode GET et produit les informations
+                    au format XML ou JSON.
+                </p>
+
+            </subsection>
+            <subsection name="Usage">
+                <h3>
+                    Syntaxe XML :
+                </h3>
+                <p>
+<div class="source">
+<pre>
+http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/records/
+
+http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/record/{id}
+ou
+http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}record/{id}.xml
+</pre>
+</div>
+</p>
+<h4>Successful Response format</h4>
+<p>
+<div class="source">
+<pre>
+&lt;?xml version="1.0" encoding="utf-8" ?&gt;
+&lt;Response&gt;
+  &lt;Status&gt;SUCCESS&lt;/Status&gt;
+  &lt;Record&gt;
+    &lt;record_attribute1&gt;value&lt;/record_attribute1&gt;
+      ...
+  &lt;/Record&gt;
+&lt;/Response&gt;
+</pre>
+</div>
+</p>
+<h4>Error Response format</h4>
+
+
+<p>
+<div class="source">
+<pre>
+&lt;?xml version="1.0" encoding="utf-8" ?&gt;
+&lt;Response&gt;
+  &lt;Status&gt;ERROR&lt;/Status&gt;
+  &lt;Error&gt;
+    &lt;Code&gt;1&lt;/Code&gt;
+    &lt;Message&gt;Resource not found.&lt;/Message&gt;
+  &lt;/Error&gt;
+&lt;/Response&gt;
+</pre>
+</div>
+</p>
+
+
+
+<h3>
+Syntaxe JSON :
+</h3>
+<p>
+<div class="source">
+<pre>
+http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/records.json/
+
+http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/record/{id}.json
+ou
+http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/record.json/{id}
+ou
+http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/record/{id} avec dans le header
+de la requete HTTP Content-Type: application/json
+</pre>
+</div>
+                </p> 
+            </subsection>
+        </section>
+    </body>
+</document>
