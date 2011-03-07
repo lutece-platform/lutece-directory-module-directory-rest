@@ -165,7 +165,11 @@ public class RecordFormaterXml implements RecordFormater
         		if ( field != null )
         		{
     				XmlUtil.beginElement( sbXml, field.getValue(  ) );
-    				XmlUtil.addElement( sbXml, TAG_ID, recordField.getIdRecordField(  ) );
+    				// For Entry type Image, we put the ID file instead of the ID of the record field
+    				if ( recordField.getFile(  ) != null )
+        			{
+    					XmlUtil.addElement( sbXml, TAG_ID, recordField.getFile(  ).getIdFile(  ) );
+        			}
     				if ( field.getWidth(  ) != 0 && field.getHeight(  ) != 0 )
     				{
     					XmlUtil.addElement( sbXml, TAG_WIDTH, field.getWidth(  ) );
@@ -174,6 +178,17 @@ public class RecordFormaterXml implements RecordFormater
     				
     				XmlUtil.endElement( sbXml, field.getValue(  ) );
         		}
+    		}
+    		else if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeFile )
+    		{
+    			String strValue = StringUtil.XMLEnc( recordField.getEntry(  ).getTitle(  ) );
+    			XmlUtil.beginElement( sbXml, strValue );
+    			// For Entry type File, we put the ID file
+				if ( recordField.getFile(  ) != null )
+    			{
+					XmlUtil.addElement( sbXml, TAG_ID, recordField.getFile(  ).getIdFile(  ) );
+    			}
+    			XmlUtil.endElement( sbXml, strValue );
     		}
     		else
     		{

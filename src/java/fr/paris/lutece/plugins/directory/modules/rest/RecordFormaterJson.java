@@ -115,7 +115,11 @@ public class RecordFormaterJson implements RecordFormater
         		if ( field != null )
         		{
         			JSONObject jsonField = new JSONObject(  );
-        			jsonField.element( TAG_ID, recordField.getIdRecordField(  ) );
+        			// For Entry type Image, we put the ID file instead of the ID of the record field
+        			if ( recordField.getFile(  ) != null )
+        			{
+        				jsonField.element( TAG_ID, recordField.getFile(  ).getIdFile(  ) );
+        			}
         			if ( field.getWidth(  ) != 0 && field.getHeight(  ) != 0 )
     				{
         				jsonField.element( TAG_WIDTH, field.getWidth(  ) );
@@ -125,6 +129,16 @@ public class RecordFormaterJson implements RecordFormater
         		}
         		
         		jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), json );
+    		}
+    		else if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeFile )
+    		{
+    			JSONObject jsonField = new JSONObject(  );
+    			// For Entry type Image, we put the ID file
+    			if ( recordField.getFile(  ) != null )
+    			{
+    				jsonField.element( TAG_ID, recordField.getFile(  ).getIdFile(  ) );
+    			}
+    			jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), jsonField );
     		}
     		else
     		{
