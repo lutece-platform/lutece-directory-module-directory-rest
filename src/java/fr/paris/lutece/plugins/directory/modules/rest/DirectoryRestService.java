@@ -40,6 +40,8 @@ import java.util.List;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+
 import fr.paris.lutece.plugins.directory.business.Directory;
 import fr.paris.lutece.plugins.directory.business.DirectoryHome;
 import fr.paris.lutece.plugins.directory.business.EntryFilter;
@@ -56,20 +58,32 @@ import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.util.AppLogService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
 
 
 /**
- *
+ * DirectoryRestService
  */
 public class DirectoryRestService
 {
 	private static final String PARAMETER_DIRECTORY_ID = "directoryId";
 	private static final String PARAMETER_RECORD_ID = "recordId";
-	
+	/** use this parameter to avoid workflow usage */
+	private static final String PARAMETER_NO_WORKFLOW = "noWorkflow";
+	/** LAUNCH WORKFLOW ACTION IF THE GIVEN ENTRY IS SET */
+	private static final String PROPERTY_FIELD_WORKFLOW_PREFIX = "directory-rest.entry.workflow.";
     private static final String PLUGIN_DIRECTORY = "directory";
+    private static final int ENTRY_NOT_SET = -1;
     private static final Plugin _pluginDirectory = PluginService.getPlugin( PLUGIN_DIRECTORY );
 
+    /**
+     * Gets the record
+     * @param strRessourceId resource id
+     * @return the record
+     * @throws DirectoryRestException if occurs
+     * @throws DirectoryErrorException if occurs
+     */
     public Record getRecord( String strRessourceId ) throws DirectoryRestException, DirectoryErrorException
     {
         int nRecordId = Integer.parseInt( strRessourceId );
@@ -95,6 +109,13 @@ public class DirectoryRestService
         return record;
     }
 
+    /**
+     * Finds the list
+     * @param nDirectoryId the directory id
+     * @return the record list
+     * @throws DirectoryRestException if occurs
+     * @throws DirectoryErrorException if occurs
+     */
     public List<Record> getRecordsList( int nDirectoryId )
         throws DirectoryRestException, DirectoryErrorException
     {
@@ -133,20 +154,73 @@ public class DirectoryRestService
         
         //save the Record and the RecordFiels
         record.setIdRecord( RecordHome.create( record, _pluginDirectory ) );
-        if ( WorkflowService.getInstance(  ).isAvailable(  ) &&
-                ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) )
+        
+        // do not use the workflow if creation is partial
+        String strNoWorkflowInit = request.getParameter( PARAMETER_NO_WORKFLOW );        	
+        if ( StringUtils.isBlank( strNoWorkflowInit ) && isEntrySet( listRecordFields, nDirectoryId ) )
         {
-            WorkflowService.getInstance(  )
-                           .getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
-                directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ), null );
-            WorkflowService.getInstance(  )
-                           .executeActionAutomatic( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
-                directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ) );
+        	doWorkflowActions( record, directory );
         }
         
         return record;
     }
     
+    /**
+     * <code>true</code> if the entry is set, or if {@link #PROPERTY_FIELD_WORKFLOW_PREFIX} is empty, <code>false</code> otherwise.
+     * This is use to bypass workflow initialization if the field is not set.
+     * @param listRecordFields record field list
+     * @return <code>true</code> if the entry is set, or if {@link #PROPERTY_FIELD_WORKFLOW_PREFIX} is empty, <code>false</code> otherwise.
+     * @see #PROPERTY_FIELD_WORKFLOW_PREFIX
+     */
+    private boolean isEntrySet( List<RecordField> listRecordFields, int nIdDirectory )
+    {
+    	int nIdEntry = AppPropertiesService.getPropertyInt( PROPERTY_FIELD_WORKFLOW_PREFIX + nIdDirectory, ENTRY_NOT_SET );
+    	if ( nIdEntry == ENTRY_NOT_SET )
+    	{
+    		return true;
+    	}
+    	
+    	
+    	for ( RecordField recordField : listRecordFields )
+    	{
+    		if ( recordField.getEntry().getIdEntry() == nIdEntry )
+    		{
+    			if ( StringUtils.isNotBlank( recordField.getValue() ) )
+    			{
+    				return true;
+    			}
+    		}
+    	}
+    	
+    	return false;
+    }
+    
+    /**
+     * Inits workflow actions (if available).
+     * @param record the record
+     * @param directory the directory
+     */
+    private void doWorkflowActions( Record record, Directory directory )
+    {
+    	if ( WorkflowService.getInstance(  ).isAvailable(  ) &&
+                ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) )
+        {
+	    	WorkflowService.getInstance(  )
+			        .getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
+			directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ), null );
+			WorkflowService.getInstance(  )
+			        .executeActionAutomatic( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
+			directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ) );
+        }
+    }
+    
+    /**
+     * Gets the record fields list for the record.
+     * @param request the request
+     * @param record the record
+     * @return the record fields
+     * @throws DirectoryErrorException if occurs
+     */
     private List<RecordField> getRecordFields( HttpServletRequest request, Record record ) throws DirectoryErrorException
     {
     	List<RecordField> listRecordFields = new ArrayList<RecordField>(  );
@@ -167,10 +241,17 @@ public class DirectoryRestService
         return listRecordFields;
     }
     
+    /**
+     * Creates or updates the record
+     * @param request the request
+     * @return the record created or updated
+     * @throws DirectoryErrorException if occurs
+     * @throws DirectoryRestException if occurs
+     */
     public Record insertOrCompleteRecord( HttpServletRequest request ) throws DirectoryErrorException, DirectoryRestException
     {
     	String strRecordId = request.getParameter( PARAMETER_RECORD_ID );
-    	if ( strRecordId != null )
+    	if ( StringUtils.isNotBlank( strRecordId ) )
     	{
     		// strRecordId ==> update
 	    	if ( AppLogService.isDebugEnabled(  ) )
@@ -250,9 +331,23 @@ public class DirectoryRestService
     	
     	RecordHome.updateWidthRecordField( record, _pluginDirectory );
     	
+    	// do not use the workflow if update is partial
+        String strNoWorkflowInit = request.getParameter( PARAMETER_NO_WORKFLOW );        	
+        if ( StringUtils.isBlank( strNoWorkflowInit ) && isEntrySet( listRecordFields, record.getDirectory().getIdDirectory() ) )
+        {
+        	doWorkflowActions( record, DirectoryHome.findByPrimaryKey( record.getDirectory().getIdDirectory(), _pluginDirectory ) );
+        }
+    	
     	return record;
     }
     
+    /**
+     * Finds the record field matching the entry id and field id
+     * @param nIdEntry the entry id
+     * @param nIdField the field Id
+     * @param listRecordFields the list
+     * @return the record field found, <code>null</code> otherwise.
+     */
     private RecordField findRecordField( int nIdEntry, int nIdField, List<RecordField> listRecordFields )
     {
     	for ( RecordField recordField : listRecordFields )
@@ -266,6 +361,13 @@ public class DirectoryRestService
     	return null;
     }
     
+    /**
+     * Checks if the record field has the same entry id and field id
+     * @param nIdEntry the entry id
+     * @param nIdField the field id
+     * @param recordField the record field
+     * @return boolean.
+     */
     private boolean isSameRecordField( int nIdEntry, int nIdField, RecordField recordField )
     {
     	if ( recordField.getEntry().getIdEntry(  ) == nIdEntry )
@@ -281,6 +383,12 @@ public class DirectoryRestService
     	return false;
     }
     
+    /**
+     * Removes the record field matching the entry id and field id from the list
+     * @param nIdEntry entry id
+     * @param nIdField field id
+     * @param listRecordFields record fields to check
+     */
     private void removeRecordField( int nIdEntry, int nIdField, List<RecordField> listRecordFields )
     {
     	Iterator<RecordField> itRecordFields = listRecordFields.iterator(  );
