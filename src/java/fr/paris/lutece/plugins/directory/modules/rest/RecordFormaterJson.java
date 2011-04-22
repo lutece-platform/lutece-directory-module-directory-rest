@@ -140,6 +140,10 @@ public class RecordFormaterJson implements RecordFormater
     			}
     			jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), jsonField );
     		}
+    		else if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeCheckBox )
+    		{
+    			jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), recordField.getField(  ).getTitle(  ) );
+    		}
     		else
     		{
     			jsonObject.element( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), recordField.getValue(  ) );
