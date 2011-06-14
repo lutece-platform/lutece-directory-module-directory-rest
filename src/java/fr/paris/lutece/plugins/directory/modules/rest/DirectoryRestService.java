@@ -147,6 +147,7 @@ public class DirectoryRestService
         Record record = new Record(  );
         record.setDirectory( directory );
         record.setDateCreation( DirectoryUtils.getCurrentTimestamp(  ) );
+        record.setEnabled( directory.isRecordActivated(  ) );
         
         List<RecordField> listRecordFields = getRecordFields( ( HttpServletRequest ) request, record );
 
