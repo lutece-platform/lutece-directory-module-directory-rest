@@ -33,14 +33,14 @@
  */
 package fr.paris.lutece.plugins.directory.modules.rest.handlers;
 
-import java.util.List;
-
-import javax.servlet.ServletRequest;
-
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.modules.rest.DirectoryRestService;
 import fr.paris.lutece.plugins.directory.modules.rest.RecordFormater;
 import fr.paris.lutece.plugins.directory.modules.rest.RecordFormaterJson;
+
+import java.util.List;
+
+import javax.servlet.ServletRequest;
 
 
 /**

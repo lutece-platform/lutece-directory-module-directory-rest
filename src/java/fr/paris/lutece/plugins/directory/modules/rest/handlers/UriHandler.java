@@ -33,9 +33,9 @@
  */
 package fr.paris.lutece.plugins.directory.modules.rest.handlers;
 
-import javax.servlet.ServletRequest;
-
 import fr.paris.lutece.plugins.directory.modules.rest.DirectoryRestService;
+
+import javax.servlet.ServletRequest;
 
 
 /**

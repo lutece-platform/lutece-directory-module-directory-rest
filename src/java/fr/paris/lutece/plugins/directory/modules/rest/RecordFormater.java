@@ -33,9 +33,9 @@
  */
 package fr.paris.lutece.plugins.directory.modules.rest;
 
-import java.util.List;
-
 import fr.paris.lutece.plugins.directory.business.Record;
+
+import java.util.List;
 
 
 /**

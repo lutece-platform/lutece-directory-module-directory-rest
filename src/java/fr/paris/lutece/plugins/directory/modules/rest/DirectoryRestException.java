@@ -39,9 +39,9 @@ package fr.paris.lutece.plugins.directory.modules.rest;
  */
 public class DirectoryRestException extends Exception
 {
-	private static final long serialVersionUID = 6666908621674661755L;
+    private static final long serialVersionUID = 6666908621674661755L;
 
-	public DirectoryRestException( String strMessage )
+    public DirectoryRestException( String strMessage )
     {
         super( strMessage );
     }

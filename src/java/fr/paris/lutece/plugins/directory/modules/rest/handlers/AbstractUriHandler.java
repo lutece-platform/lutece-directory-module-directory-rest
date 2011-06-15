@@ -34,7 +34,6 @@
 package fr.paris.lutece.plugins.directory.modules.rest.handlers;
 
 
-
 /**
  * Abstract Uri Handler
  */
@@ -46,7 +45,6 @@ public abstract class AbstractUriHandler implements UriHandler
     protected static final String METHOD_GET = "GET";
     protected static final String METHOD_POST = "POST";
     public static final String URI_BASE_PATH_PATTERN = "/jsp/site/rest/directory/";
-
 
     protected boolean isUriExtensionMatch( String strUri, String strValidExtension )
     {
@@ -103,6 +101,7 @@ public abstract class AbstractUriHandler implements UriHandler
         int nPos2 = strURI2.indexOf( "/" );
         String strResourceId = strURI2.substring( 0, nPos2 );
         int nResourceId = Integer.parseInt( strResourceId );
+
         return nResourceId;
     }
 }

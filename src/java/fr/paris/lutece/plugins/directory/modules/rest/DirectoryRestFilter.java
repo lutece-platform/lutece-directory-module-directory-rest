@@ -33,7 +33,13 @@
  */
 package fr.paris.lutece.plugins.directory.modules.rest;
 
+import fr.paris.lutece.plugins.directory.modules.rest.handlers.AbstractUriHandler;
+import fr.paris.lutece.plugins.directory.modules.rest.handlers.UriHandler;
+import fr.paris.lutece.plugins.directory.modules.rest.handlers.UriHandlersRegistry;
+import fr.paris.lutece.portal.service.spring.SpringContextService;
+
 import java.io.IOException;
+
 import java.util.List;
 
 import javax.servlet.Filter;
@@ -44,11 +50,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
-import fr.paris.lutece.plugins.directory.modules.rest.handlers.AbstractUriHandler;
-import fr.paris.lutece.plugins.directory.modules.rest.handlers.UriHandler;
-import fr.paris.lutece.plugins.directory.modules.rest.handlers.UriHandlersRegistry;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 
 
 /**
@@ -83,15 +84,15 @@ public class DirectoryRestFilter implements Filter
         String strURI = ( (HttpServletRequest) request ).getRequestURI(  );
         String strMethod = ( (HttpServletRequest) request ).getMethod(  );
 
-        if( AbstractUriHandler.isUriPathGloballyMatch( strURI ) )
+        if ( AbstractUriHandler.isUriPathGloballyMatch( strURI ) )
         {
-	        for ( UriHandler handler : _listHandlers )
-	        {
-	            if ( handler.isHandledUri( strURI, strMethod, request.getContentType(  ) ) )
-	            {
-	                strResponse = handler.processUri( strURI, _service, request );
-	            }
-	        }
+            for ( UriHandler handler : _listHandlers )
+            {
+                if ( handler.isHandledUri( strURI, strMethod, request.getContentType(  ) ) )
+                {
+                    strResponse = handler.processUri( strURI, _service, request );
+                }
+            }
         }
 
         ServletOutputStream out = response.getOutputStream(  );

@@ -33,14 +33,14 @@
  */
 package fr.paris.lutece.plugins.directory.modules.rest.handlers;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.modules.rest.DirectoryRestService;
 import fr.paris.lutece.plugins.directory.modules.rest.RecordFormater;
 import fr.paris.lutece.plugins.directory.modules.rest.RecordFormaterJson;
 import fr.paris.lutece.portal.service.util.AppLogService;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -59,17 +59,20 @@ public class InsertRecordHandler extends AbstractUriHandler
     {
         if ( !isUriPathMatch( strURI, URI_PATH_PATTERN ) || ( !METHOD_POST.equals( strMethod ) ) )
         {
-        	if ( AppLogService.isDebugEnabled(  ) )
-        	{
-        		AppLogService.debug( InsertRecordHandler.class.getName(  ) + " will not handle " + strURI + ". Method : " + strMethod + ". Content type : " + strContentType );
-        	}
+            if ( AppLogService.isDebugEnabled(  ) )
+            {
+                AppLogService.debug( InsertRecordHandler.class.getName(  ) + " will not handle " + strURI +
+                    ". Method : " + strMethod + ". Content type : " + strContentType );
+            }
+
             return false;
         }
-        
+
         if ( AppLogService.isDebugEnabled(  ) )
-    	{
-    		AppLogService.debug( InsertRecordHandler.class.getName(  ) + " handling " + strURI + ". Method : " + strMethod + ". Content type : " + strContentType );
-    	}
+        {
+            AppLogService.debug( InsertRecordHandler.class.getName(  ) + " handling " + strURI + ". Method : " +
+                strMethod + ". Content type : " + strContentType );
+        }
 
         return true;
     }
@@ -79,26 +82,27 @@ public class InsertRecordHandler extends AbstractUriHandler
      */
     public String processUri( String strURI, DirectoryRestService service, ServletRequest request )
     {
-    	if ( AppLogService.isDebugEnabled(  ) )
+        if ( AppLogService.isDebugEnabled(  ) )
         {
-        	AppLogService.debug( InsertRecordHandler.class.getName(  ) + " processing request");
+            AppLogService.debug( InsertRecordHandler.class.getName(  ) + " processing request" );
         }
+
         String strResponse;
 
         try
         {
-            Record record = service.insertOrCompleteRecord( ( HttpServletRequest ) request );
+            Record record = service.insertOrCompleteRecord( (HttpServletRequest) request );
             strResponse = _formater.formatRecord( record );
         }
         catch ( Exception ex )
         {
-        	AppLogService.error( InsertRecordHandler.class.getName(  ) + " " + ex.getMessage(  ), ex );
+            AppLogService.error( InsertRecordHandler.class.getName(  ) + " " + ex.getMessage(  ), ex );
             strResponse = _formater.formatError( "1", ex.getMessage(  ) );
         }
-        
+
         if ( AppLogService.isDebugEnabled(  ) )
         {
-        	AppLogService.debug( InsertRecordHandler.class.getName(  ) + " responding " + strResponse );
+            AppLogService.debug( InsertRecordHandler.class.getName(  ) + " responding " + strResponse );
         }
 
         return strResponse;

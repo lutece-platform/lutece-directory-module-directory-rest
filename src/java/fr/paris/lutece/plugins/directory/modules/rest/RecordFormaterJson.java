@@ -33,14 +33,15 @@
  */
 package fr.paris.lutece.plugins.directory.modules.rest;
 
-import java.util.List;
-
-import net.sf.json.JSONObject;
 import fr.paris.lutece.plugins.directory.business.Field;
 import fr.paris.lutece.plugins.directory.business.IEntry;
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.business.RecordField;
 import fr.paris.lutece.util.string.StringUtil;
+
+import net.sf.json.JSONObject;
+
+import java.util.List;
 
 
 /**
@@ -48,10 +49,10 @@ import fr.paris.lutece.util.string.StringUtil;
  */
 public class RecordFormaterJson implements RecordFormater
 {
-	private static final String TAG_ID = "Id";
-	private static final String TAG_WIDTH = "Width";
+    private static final String TAG_ID = "Id";
+    private static final String TAG_WIDTH = "Width";
     private static final String TAG_HEIGHT = "Height";
-	
+
     /**
      * {@inheritDoc }
      */
@@ -61,9 +62,10 @@ public class RecordFormaterJson implements RecordFormater
 
         // FIXME use a better structure for this JSON object. A field could be named "Id" and would cause an undeterministic behaviour.
         jsonObject.element( TAG_ID, record.getIdRecord(  ) );
+
         for ( RecordField field : record.getListRecordField(  ) )
         {
-        	formatRecordField( jsonObject, field );
+            formatRecordField( jsonObject, field );
         }
 
         return jsonObject.toString(  );
@@ -102,54 +104,62 @@ public class RecordFormaterJson implements RecordFormater
 
         return sbXml.toString(  );
     }
-    
+
     private void formatRecordField( JSONObject jsonObject, RecordField recordField )
     {
-    	IEntry entry = recordField.getEntry(  );
-    	if ( entry != null )
-    	{
-    		if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeImg )
-    		{
-        		Field field = recordField.getField(  );
-        		JSONObject json = new JSONObject(  );
-        		if ( field != null )
-        		{
-        			JSONObject jsonField = new JSONObject(  );
-        			// For Entry type Image, we put the ID file instead of the ID of the record field
-        			if ( recordField.getFile(  ) != null )
-        			{
-        				jsonField.element( TAG_ID, recordField.getFile(  ).getIdFile(  ) );
-        			}
-        			if ( field.getWidth(  ) != 0 && field.getHeight(  ) != 0 )
-    				{
-        				jsonField.element( TAG_WIDTH, field.getWidth(  ) );
-            			jsonField.element( TAG_HEIGHT, field.getHeight(  ) );
-    				}
-        			json.accumulate( field.getValue(  ), jsonField );
-        		}
-        		
-        		jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), json );
-    		}
-    		else if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeFile )
-    		{
-    			JSONObject jsonField = new JSONObject(  );
-    			// For Entry type Image, we put the ID file
-    			if ( recordField.getFile(  ) != null )
-    			{
-    				jsonField.element( TAG_ID, recordField.getFile(  ).getIdFile(  ) );
-    			}
-    			jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), jsonField );
-    		}
-    		else if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeCheckBox )
-    		{
-    			JSONObject jsonField = new JSONObject(  );
-    			jsonField.element( recordField.getValue(  ), recordField.getField(  ).getTitle(  ) );
-    			jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), jsonField );
-    		}
-    		else
-    		{
-    			jsonObject.element( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), recordField.getValue(  ) );
-    		}
-    	}
+        IEntry entry = recordField.getEntry(  );
+
+        if ( entry != null )
+        {
+            if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeImg )
+            {
+                Field field = recordField.getField(  );
+                JSONObject json = new JSONObject(  );
+
+                if ( field != null )
+                {
+                    JSONObject jsonField = new JSONObject(  );
+
+                    // For Entry type Image, we put the ID file instead of the ID of the record field
+                    if ( recordField.getFile(  ) != null )
+                    {
+                        jsonField.element( TAG_ID, recordField.getFile(  ).getIdFile(  ) );
+                    }
+
+                    if ( ( field.getWidth(  ) != 0 ) && ( field.getHeight(  ) != 0 ) )
+                    {
+                        jsonField.element( TAG_WIDTH, field.getWidth(  ) );
+                        jsonField.element( TAG_HEIGHT, field.getHeight(  ) );
+                    }
+
+                    json.accumulate( field.getValue(  ), jsonField );
+                }
+
+                jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), json );
+            }
+            else if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeFile )
+            {
+                JSONObject jsonField = new JSONObject(  );
+
+                // For Entry type Image, we put the ID file
+                if ( recordField.getFile(  ) != null )
+                {
+                    jsonField.element( TAG_ID, recordField.getFile(  ).getIdFile(  ) );
+                }
+
+                jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), jsonField );
+            }
+            else if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeCheckBox )
+            {
+                JSONObject jsonField = new JSONObject(  );
+                jsonField.element( recordField.getValue(  ), recordField.getField(  ).getTitle(  ) );
+                jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), jsonField );
+            }
+            else
+            {
+                jsonObject.element( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ),
+                    recordField.getValue(  ) );
+            }
+        }
     }
 }
