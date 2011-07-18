@@ -281,6 +281,39 @@ public class DirectoryRestService
     }
 
     /**
+     * delete the record
+     * @param request the request
+     * @return the record deleted
+     * @throws DirectoryErrorException if occurs
+     * @throws DirectoryRestException if occurs
+     */
+    public String deleteRecord( HttpServletRequest request )
+        throws DirectoryErrorException, DirectoryRestException
+    {
+        String[] uriChunks = request.getRequestURI(  ).split( "/" );
+        String strRecordId = uriChunks[uriChunks.length - 1];
+
+        if ( StringUtils.isNotBlank( strRecordId ) )
+        {
+            if ( AppLogService.isDebugEnabled(  ) )
+            {
+                AppLogService.debug( "Record id found, deleting record " + strRecordId );
+            }
+
+            Record record = getRecord( strRecordId );
+            RecordHome.remove( record.getIdRecord(  ), _pluginDirectory );
+            WorkflowService.getInstance(  )
+                           .doRemoveWorkFlowResource( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE );
+        }
+        else
+        {
+            throw new DirectoryRestException( "error deleting record where id = " + strRecordId );
+        }
+
+        return "record deleted";
+    }
+
+    /**
      * Gets record fields values from the request and complete the record for asynchronous record creation.
      * This method is <b>NOT</b> a modification of the record.
      * @param strRecordId the id of the record to complete
