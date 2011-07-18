@@ -470,4 +470,32 @@ public class DirectoryRestService
             }
         }
     }
+
+    /**
+     * update record
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    public Record updateRecord( HttpServletRequest request )
+        throws Exception
+    {
+        String strRecordId = request.getParameter( PARAMETER_RECORD_ID );
+
+        Record record = getRecord( strRecordId );
+
+        List<RecordField> listRecordFields = getRecordFields( request, record );
+
+        for ( RecordField recordField : listRecordFields )
+        {
+            RecordFieldFilter filter = new RecordFieldFilter(  );
+            filter.setIdEntry( recordField.getEntry(  ).getIdEntry(  ) );
+            filter.setIdRecord( record.getIdRecord(  ) );
+            RecordFieldHome.removeByFilter( filter, _pluginDirectory );
+            recordField.setRecord( record );
+            RecordFieldHome.create( recordField, _pluginDirectory );
+        }
+
+        return record;
+    }
 }

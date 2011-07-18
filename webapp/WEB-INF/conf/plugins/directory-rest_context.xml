@@ -8,6 +8,7 @@
     <bean id="jsonRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.JsonRecordHandler" />
     <bean id="jsonRecordsHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.JsonRecordsListHandler" />
     <bean id="insertRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.InsertRecordHandler" />
+    <bean id="updateRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.UpdateRecordHandler" />
     <bean id="deleteRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.DeleteRecordHandler" />
 
     <bean id="listUriHandlers" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.UriHandlersRegistry" >
@@ -18,6 +19,7 @@
                 <ref bean="jsonRecordHandler" />
                 <ref bean="jsonRecordsHandler" />
                 <ref bean="insertRecordHandler" />
+                <ref bean="updateRecordHandler" />
                 <ref bean="deleteRecordHandler" />
             </list>
         </property>

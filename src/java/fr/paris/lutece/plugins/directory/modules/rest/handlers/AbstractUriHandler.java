@@ -44,6 +44,7 @@ public abstract class AbstractUriHandler implements UriHandler
     protected static final String CONTENT_TYPE_JSON = "application/json";
     protected static final String METHOD_GET = "GET";
     protected static final String METHOD_POST = "POST";
+    protected static final String METHOD_PUT = "PUT";
     protected static final String METHOD_DELETE = "DELETE";
     public static final String URI_BASE_PATH_PATTERN = "/jsp/site/rest/directory/";
 
