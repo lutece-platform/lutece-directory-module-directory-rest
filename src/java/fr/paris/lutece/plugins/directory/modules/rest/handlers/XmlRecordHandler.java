@@ -69,7 +69,7 @@ public class XmlRecordHandler extends AbstractUriHandler
     public String processUri( String strURI, DirectoryRestService service, ServletRequest request )
     {
         String strResponse = "";
-        String strResourceId = getResourceId( strURI, URI_PATH_PATTERN );
+        String strResourceId = getResourceId( strURI );
 
         try
         {

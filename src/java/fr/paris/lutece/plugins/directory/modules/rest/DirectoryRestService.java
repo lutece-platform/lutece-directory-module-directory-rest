@@ -287,12 +287,8 @@ public class DirectoryRestService
      * @throws DirectoryErrorException if occurs
      * @throws DirectoryRestException if occurs
      */
-    public String deleteRecord( HttpServletRequest request )
-        throws DirectoryErrorException, DirectoryRestException
+    public String deleteRecord( String strRecordId ) throws DirectoryErrorException, DirectoryRestException
     {
-        String[] uriChunks = request.getRequestURI(  ).split( "/" );
-        String strRecordId = uriChunks[uriChunks.length - 1];
-
         if ( StringUtils.isNotBlank( strRecordId ) )
         {
             if ( AppLogService.isDebugEnabled(  ) )
@@ -488,14 +484,20 @@ public class DirectoryRestService
 
         for ( RecordField recordField : listRecordFields )
         {
-            RecordFieldFilter filter = new RecordFieldFilter(  );
-            filter.setIdEntry( recordField.getEntry(  ).getIdEntry(  ) );
-            filter.setIdRecord( record.getIdRecord(  ) );
-            RecordFieldHome.removeByFilter( filter, _pluginDirectory );
-            recordField.setRecord( record );
-            RecordFieldHome.create( recordField, _pluginDirectory );
+            int idEntry = recordField.getEntry(  ).getIdEntry(  );
+            String strEntryId = request.getParameter( Integer.toString( idEntry ) );
+
+            if ( strEntryId != null )
+            {
+                RecordFieldFilter filter = new RecordFieldFilter(  );
+                filter.setIdEntry( idEntry );
+                filter.setIdRecord( record.getIdRecord(  ) );
+                RecordFieldHome.removeByFilter( filter, _pluginDirectory );
+                recordField.setRecord( record );
+                RecordFieldHome.create( recordField, _pluginDirectory );
+            }
         }
 
-        return record;
+        return getRecord( strRecordId );
     }
 }

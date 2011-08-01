@@ -85,18 +85,11 @@ public class JsonRecordHandler extends AbstractUriHandler
      */
     public String processUri( String strURI, DirectoryRestService service, ServletRequest request )
     {
-        String strResponse = "";
-
-        String strResourceId = getResourceId( strURI, URI_PATH_PATTERN );
-
-        // If URI using this format /record.json/{id}
-        if ( isUriPathMatch( strURI, URI_PATH_PATTERN_JSON ) )
-        {
-            strResourceId = getResourceId( strURI, URI_PATH_PATTERN_JSON );
-        }
+        String strResponse;
 
         try
         {
+            String strResourceId = getResourceId( strURI );
             Record record = service.getRecord( strResourceId );
             strResponse = _formater.formatRecord( record );
         }

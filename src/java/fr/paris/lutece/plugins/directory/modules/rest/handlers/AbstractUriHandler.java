@@ -65,7 +65,7 @@ public abstract class AbstractUriHandler implements UriHandler
     {
         int nPos = strUri.indexOf( URI_BASE_PATH_PATTERN );
 
-        return nPos > 0;
+        return nPos >= 0;
     }
 
     protected boolean isUriPathMatch( String strUri, String strPath )
@@ -80,18 +80,10 @@ public abstract class AbstractUriHandler implements UriHandler
         return strContentType.equalsIgnoreCase( strValidContentType );
     }
 
-    protected String getResourceId( String strURI, String strPattern )
+    protected String getResourceId( String strURI )
     {
-        int nPos = strURI.indexOf( strPattern );
-        String strResourceId = strURI.substring( nPos + strPattern.length(  ) );
-
-        // Remove eventual extension
-        nPos = strResourceId.lastIndexOf( "." );
-
-        if ( nPos > 0 )
-        {
-            strResourceId = strResourceId.substring( 0, nPos );
-        }
+        String[] uri = strURI.split( "/" );
+        String strResourceId = uri[uri.length - 1];
 
         return strResourceId;
     }

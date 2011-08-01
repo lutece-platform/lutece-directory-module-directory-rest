@@ -79,8 +79,11 @@ public class RecordFormaterXml implements RecordFormater
 
         for ( RecordField field : record.getListRecordField(  ) )
         {
-            getRecordFieldXml( sbXml, field, previousEntry );
-            previousEntry = field.getEntry(  );
+            if ( ( field != null ) && ( field.getValue(  ) != null ) )
+            {
+                getRecordFieldXml( sbXml, field, previousEntry );
+                previousEntry = field.getEntry(  );
+            }
         }
 
         // We close the element if the last entry is a type Img

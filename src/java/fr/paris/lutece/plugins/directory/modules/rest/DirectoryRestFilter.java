@@ -80,7 +80,7 @@ public class DirectoryRestFilter implements Filter
     public void doFilter( ServletRequest request, ServletResponse response, FilterChain filterChain )
         throws IOException, ServletException
     {
-        String strResponse = "URI not handled !";
+        String strResponse = "URI not handled!";
         String strURI = ( (HttpServletRequest) request ).getRequestURI(  );
         String strMethod = ( (HttpServletRequest) request ).getMethod(  );
 

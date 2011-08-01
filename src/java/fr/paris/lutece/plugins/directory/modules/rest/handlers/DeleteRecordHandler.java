@@ -39,7 +39,6 @@ import fr.paris.lutece.plugins.directory.modules.rest.RecordFormaterJson;
 import fr.paris.lutece.portal.service.util.AppLogService;
 
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -90,7 +89,8 @@ public class DeleteRecordHandler extends AbstractUriHandler
 
         try
         {
-            strResponse = service.deleteRecord( (HttpServletRequest) request );
+            String strResourceId = getResourceId( strURI );
+            strResponse = service.deleteRecord( strResourceId );
         }
         catch ( Exception ex )
         {
