@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.directory.business.Field;
 import fr.paris.lutece.plugins.directory.business.IEntry;
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.business.RecordField;
+import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.util.string.StringUtil;
 
 import net.sf.json.JSONObject;
@@ -151,9 +152,19 @@ public class RecordFormaterJson implements RecordFormater
             }
             else if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeCheckBox )
             {
-                JSONObject jsonField = new JSONObject(  );
-                jsonField.element( recordField.getValue(  ), recordField.getField(  ).getTitle(  ) );
-                jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), jsonField );
+            	if ( recordField != null && recordField.getField(  ) != null && recordField.getValue(  ) != null )
+            	{
+	                JSONObject jsonField = new JSONObject(  );
+	                jsonField.element( recordField.getValue(  ), recordField.getField(  ).getTitle(  ) );
+	                jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), jsonField );
+            	}
+            	else
+            	{
+            		if ( AppLogService.isDebugEnabled(  ) )
+            		{
+            			AppLogService.debug( "Record field is null for entry " + entry.getTitle(  ) );
+            		}
+            	}
             }
             else
             {
