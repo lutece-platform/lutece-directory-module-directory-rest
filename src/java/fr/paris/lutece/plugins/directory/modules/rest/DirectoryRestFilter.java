@@ -37,6 +37,7 @@ import fr.paris.lutece.plugins.directory.modules.rest.handlers.AbstractUriHandle
 import fr.paris.lutece.plugins.directory.modules.rest.handlers.UriHandler;
 import fr.paris.lutece.plugins.directory.modules.rest.handlers.UriHandlersRegistry;
 import fr.paris.lutece.portal.service.spring.SpringContextService;
+import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
 import java.io.IOException;
 
@@ -51,6 +52,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+
 
 /**
  * Servlet filter handling REST request
@@ -59,6 +62,7 @@ public class DirectoryRestFilter implements Filter
 {
     private static final String BEAN_HANDLERS_REGISTRY = "listUriHandlers";
     private static final String MODULE_NAME = "directory-rest";
+    private static final String PROPERTY_RESPONSE_ENCODING = "directory-rest.responseEncoding";
     private DirectoryRestService _service;
     private List<UriHandler> _listHandlers;
 
@@ -93,6 +97,12 @@ public class DirectoryRestFilter implements Filter
                     strResponse = handler.processUri( strURI, _service, request );
                 }
             }
+        }
+        
+        String strCharacterEncoding = AppPropertiesService.getProperty( PROPERTY_RESPONSE_ENCODING );
+        if ( StringUtils.isNotBlank( strCharacterEncoding ) )
+        {
+        	response.setCharacterEncoding( strCharacterEncoding );
         }
 
         ServletOutputStream out = response.getOutputStream(  );
