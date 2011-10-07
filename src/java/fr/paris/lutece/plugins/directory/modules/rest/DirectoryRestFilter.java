@@ -39,7 +39,10 @@ import fr.paris.lutece.plugins.directory.modules.rest.handlers.UriHandlersRegist
 import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import java.util.List;
 
@@ -47,12 +50,9 @@ import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -98,14 +98,15 @@ public class DirectoryRestFilter implements Filter
                 }
             }
         }
-        
+
         String strCharacterEncoding = AppPropertiesService.getProperty( PROPERTY_RESPONSE_ENCODING );
+
         if ( StringUtils.isNotBlank( strCharacterEncoding ) )
         {
-        	response.setCharacterEncoding( strCharacterEncoding );
+            response.setCharacterEncoding( strCharacterEncoding );
         }
 
-        ServletOutputStream out = response.getOutputStream(  );
+        PrintWriter out = response.getWriter(  );
         out.println( strResponse );
         out.flush(  );
         out.close(  );

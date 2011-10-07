@@ -152,19 +152,20 @@ public class RecordFormaterJson implements RecordFormater
             }
             else if ( entry instanceof fr.paris.lutece.plugins.directory.business.EntryTypeCheckBox )
             {
-            	if ( recordField != null && recordField.getField(  ) != null && recordField.getValue(  ) != null )
-            	{
-	                JSONObject jsonField = new JSONObject(  );
-	                jsonField.element( recordField.getValue(  ), recordField.getField(  ).getTitle(  ) );
-	                jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), jsonField );
-            	}
-            	else
-            	{
-            		if ( AppLogService.isDebugEnabled(  ) )
-            		{
-            			AppLogService.debug( "Record field is null for entry " + entry.getTitle(  ) );
-            		}
-            	}
+                if ( ( recordField != null ) && ( recordField.getField(  ) != null ) &&
+                        ( recordField.getValue(  ) != null ) )
+                {
+                    JSONObject jsonField = new JSONObject(  );
+                    jsonField.element( recordField.getValue(  ), recordField.getField(  ).getTitle(  ) );
+                    jsonObject.accumulate( StringUtil.replaceAccent( recordField.getEntry(  ).getTitle(  ) ), jsonField );
+                }
+                else
+                {
+                    if ( AppLogService.isDebugEnabled(  ) )
+                    {
+                        AppLogService.debug( "Record field is null for entry " + entry.getTitle(  ) );
+                    }
+                }
             }
             else
             {
