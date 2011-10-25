@@ -31,34 +31,53 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.directory.modules.rest.handlers;
+package fr.paris.lutece.plugins.directory.modules.rest.service.writers;
 
-import fr.paris.lutece.plugins.directory.modules.rest.DirectoryRestService;
+import fr.paris.lutece.plugins.directory.business.Record;
+import fr.paris.lutece.plugins.rest.service.writers.AbstractWriter;
 
-import javax.servlet.ServletRequest;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
+import java.util.List;
+
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.Provider;
 
 
 /**
- * URI Handler Interface
+ *
+ * RecordWriter
  *
  */
-public interface UriHandler
+@Provider
+@Produces( {MediaType.APPLICATION_XML,
+    MediaType.APPLICATION_JSON
+} )
+public class RecordWriter extends AbstractWriter<Record>
 {
     /**
-     * Tells if the current handler should handle the given URI with a given content type
-     * @param strURI The URI
-     * @param strMethod The method (GET, POST, PUT, DELETE)
-     * @param strContentType The request content type
-     * @return True if the handler should handle this URI
+     * {@inheritDoc}
      */
-    boolean isHandledUri( String strURI, String strMethod, String strContentType );
+    public boolean isWriteable( Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType )
+    {
+        // Ensure that we're handling only List<Record> objects.
+        boolean isWritable = false;
 
-    /**
-     * Process the URI to build the response
-     * @param strURI The request URI
-     * @param service The directory service
-     * @param mapParameters The request parameters
-     * @return The response
-     */
-    String processUri( String strURI, DirectoryRestService service, ServletRequest request );
+        if ( Record.class.equals( genericType ) )
+        {
+            isWritable = true;
+        }
+
+        if ( List.class.isAssignableFrom( type ) && genericType instanceof ParameterizedType )
+        {
+            ParameterizedType parameterizedType = (ParameterizedType) genericType;
+            Type[] actualTypeArgs = ( parameterizedType.getActualTypeArguments(  ) );
+            isWritable = ( ( actualTypeArgs.length == 1 ) && actualTypeArgs[0].equals( Record.class ) );
+        }
+
+        return isWritable;
+    }
 }

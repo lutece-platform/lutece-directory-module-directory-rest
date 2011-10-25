@@ -31,37 +31,53 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.directory.modules.rest;
+package fr.paris.lutece.plugins.directory.modules.rest.service.writers;
 
-import fr.paris.lutece.plugins.directory.business.Record;
+import fr.paris.lutece.plugins.directory.business.Directory;
+import fr.paris.lutece.plugins.rest.service.writers.AbstractWriter;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import java.util.List;
 
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.Provider;
+
 
 /**
- * Record Formater Interface
+ *
+ * DirectoryWriter
+ *
  */
-public interface RecordFormater
+@Provider
+@Produces( {MediaType.APPLICATION_XML,
+    MediaType.APPLICATION_JSON
+} )
+public class DirectoryWriter extends AbstractWriter<Directory>
 {
     /**
-     * Format the ouput of a given directory record
-     * @param record The record
-     * @return The formated output
+     * {@inheritDoc}
      */
-    String formatRecord( Record record );
+    public boolean isWriteable( Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType )
+    {
+        // Ensure that we're handling only List<Directory> objects.
+        boolean isWritable = false;
 
-    /**
-     * Format the ouput of a given directory list of records
-     * @param listRecords The list of records
-     * @return The formated output
-     */
-    String formatRecordsList( List<Record> listRecords );
+        if ( Directory.class.equals( genericType ) )
+        {
+            isWritable = true;
+        }
 
-    /**
-     * Format the ouput of an err
-     * @param strCode The error code
-     * @param strMessage The error message
-     * @return The output
-     */
-    String formatError( String strCode, String strMessage );
+        if ( List.class.isAssignableFrom( type ) && genericType instanceof ParameterizedType )
+        {
+            ParameterizedType parameterizedType = (ParameterizedType) genericType;
+            Type[] actualTypeArgs = ( parameterizedType.getActualTypeArguments(  ) );
+            isWritable = ( ( actualTypeArgs.length == 1 ) && actualTypeArgs[0].equals( Directory.class ) );
+        }
+
+        return isWritable;
+    }
 }

@@ -31,59 +31,24 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.directory.modules.rest.handlers;
-
-import fr.paris.lutece.plugins.directory.business.Record;
-import fr.paris.lutece.plugins.directory.modules.rest.DirectoryRestService;
-import fr.paris.lutece.plugins.directory.modules.rest.RecordFormater;
-import fr.paris.lutece.plugins.directory.modules.rest.RecordFormaterXml;
-
-import java.util.List;
-
-import javax.servlet.ServletRequest;
+package fr.paris.lutece.plugins.directory.modules.rest.service;
 
 
 /**
- * XML Records List Handler
+ *
+ * DirectoryRestException
+ *
  */
-public class XmlRecordsListHandler extends AbstractUriHandler
+public class DirectoryRestException extends Exception
 {
-    private static final String URI_PATH_PATTERN = "records/";
-    private RecordFormater _formater = new RecordFormaterXml(  );
+    private static final long serialVersionUID = 6666908621674661755L;
 
     /**
-     * {@inheritDoc }
+     * Constructor
+     * @param strMessage the message
      */
-    public boolean isHandledUri( String strURI, String strMethod, String strContentType )
+    public DirectoryRestException( String strMessage )
     {
-        if ( ( !isUriPathMatch( strURI, URI_PATH_PATTERN ) ) || ( strMethod != METHOD_GET ) ||
-                ( !isUriExtensionMatch( strURI, EXTENSION_XML ) ) ||
-                ( isUriContentTypeMatch( strContentType, CONTENT_TYPE_JSON ) ) )
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc }
-     */
-    public String processUri( String strURI, DirectoryRestService service, ServletRequest request )
-    {
-        String strResponse = "";
-        int nDirectoryId = getDirectoryId( strURI );
-
-        try
-        {
-            List<Record> listRecords = service.getRecordsList( nDirectoryId );
-            strResponse = _formater.formatRecordsList( listRecords );
-        }
-        catch ( Exception ex )
-        {
-            strResponse = _formater.formatError( "1", ex.getMessage(  ) );
-        }
-
-        return strResponse;
+        super( strMessage );
     }
 }

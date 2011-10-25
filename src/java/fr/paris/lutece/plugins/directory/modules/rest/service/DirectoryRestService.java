@@ -31,9 +31,10 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.directory.modules.rest;
+package fr.paris.lutece.plugins.directory.modules.rest.service;
 
 import fr.paris.lutece.plugins.directory.business.Directory;
+import fr.paris.lutece.plugins.directory.business.DirectoryFilter;
 import fr.paris.lutece.plugins.directory.business.DirectoryHome;
 import fr.paris.lutece.plugins.directory.business.EntryFilter;
 import fr.paris.lutece.plugins.directory.business.EntryHome;
@@ -44,6 +45,8 @@ import fr.paris.lutece.plugins.directory.business.RecordField;
 import fr.paris.lutece.plugins.directory.business.RecordFieldFilter;
 import fr.paris.lutece.plugins.directory.business.RecordFieldHome;
 import fr.paris.lutece.plugins.directory.business.RecordHome;
+import fr.paris.lutece.plugins.directory.modules.rest.util.constants.DirectoryRestConstants;
+import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.utils.DirectoryErrorException;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.portal.service.plugin.Plugin;
@@ -63,7 +66,9 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
+ *
  * DirectoryRestService
+ *
  */
 public class DirectoryRestService
 {
@@ -74,10 +79,9 @@ public class DirectoryRestService
     private static final String PARAMETER_NO_WORKFLOW = "noWorkflow";
 
     /** LAUNCH WORKFLOW ACTION IF THE GIVEN ENTRY IS SET */
-    private static final String PROPERTY_FIELD_WORKFLOW_PREFIX = "directory-rest.entry.workflow.";
-    private static final String PLUGIN_DIRECTORY = "directory";
-    private static final int ENTRY_NOT_SET = -1;
-    private static final Plugin _pluginDirectory = PluginService.getPlugin( PLUGIN_DIRECTORY );
+    private static final Plugin _pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+    // GET
 
     /**
      * Gets the record
@@ -135,15 +139,85 @@ public class DirectoryRestService
     }
 
     /**
-     * Add a record in a directory with the parameters given if they match
-     * @param strDirectoryId
-     * @param mapParameters
-     * @throws DirectoryErrorException
+     * Return all entry associate to the directory
+     * <br />
+     * <b>WARNING : </b>This method does not check the authorization
+     * to view the entry (ie workgroup).
+     * @param nIdDirectory the id of the directory
+     * @return list of entries
      */
-    public Record addToDirectory( String strDirectoryId, ServletRequest request )
+    public List<IEntry> getEntries( int nIdDirectory )
+    {
+        IEntry entryFistLevel;
+        EntryFilter filter = new EntryFilter(  );
+        filter.setIdDirectory( nIdDirectory );
+        filter.setIsEntryParentNull( EntryFilter.FILTER_TRUE );
+
+        List<IEntry> listEntryFirstLevel = EntryHome.getEntryList( filter, _pluginDirectory );
+        List<IEntry> listEntryImbricate = new ArrayList<IEntry>(  );
+
+        for ( IEntry entry : listEntryFirstLevel )
+        {
+            entryFistLevel = EntryHome.findByPrimaryKey( entry.getIdEntry(  ), _pluginDirectory );
+
+            if ( entryFistLevel.getEntryType(  ).getGroup(  ) )
+            {
+                filter = new EntryFilter(  );
+                filter.setIdEntryParent( entryFistLevel.getIdEntry(  ) );
+
+                List<IEntry> listEntryChildren = new ArrayList<IEntry>(  );
+
+                for ( IEntry entryChildren : EntryHome.getEntryList( filter, _pluginDirectory ) )
+                {
+                    IEntry entryTmp = EntryHome.findByPrimaryKey( entryChildren.getIdEntry(  ), _pluginDirectory );
+                    listEntryChildren.add( entryTmp );
+                }
+
+                entryFistLevel.setChildren( listEntryChildren );
+            }
+
+            listEntryImbricate.add( entryFistLevel );
+        }
+
+        return listEntryImbricate;
+    }
+
+    /**
+     * Get the directory given the id directory
+     * @param nIdDirectory the id directory
+     * @return the directory
+     */
+    public Directory getDirectory( int nIdDirectory )
+    {
+        Plugin plugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+        return DirectoryHome.findByPrimaryKey( nIdDirectory, plugin );
+    }
+
+    /**
+     * Get the list of directories
+     * @return the list of directories
+     */
+    public List<Directory> getDirectoriesList(  )
+    {
+        Plugin plugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+        return DirectoryHome.getDirectoryList( new DirectoryFilter(  ), plugin );
+    }
+
+    // ACTION
+
+    /**
+     * Add a record in a directory with the parameters given if they match
+     * @param strIdDirectory the directory id
+     * @param request the HTTP request
+     * @return the record
+     * @throws DirectoryErrorException exception if there is an error
+     */
+    public Record addToDirectory( String strIdDirectory, ServletRequest request )
         throws DirectoryErrorException
     {
-        int nDirectoryId = Integer.parseInt( strDirectoryId );
+        int nDirectoryId = Integer.parseInt( strIdDirectory );
         Directory directory = DirectoryHome.findByPrimaryKey( nDirectoryId, _pluginDirectory );
 
         Record record = new Record(  );
@@ -167,83 +241,6 @@ public class DirectoryRestService
         }
 
         return record;
-    }
-
-    /**
-     * <code>true</code> if the entry is set, or if {@link #PROPERTY_FIELD_WORKFLOW_PREFIX} is empty, <code>false</code> otherwise.
-     * This is use to bypass workflow initialization if the field is not set.
-     * @param listRecordFields record field list
-     * @return <code>true</code> if the entry is set, or if {@link #PROPERTY_FIELD_WORKFLOW_PREFIX} is empty, <code>false</code> otherwise.
-     * @see #PROPERTY_FIELD_WORKFLOW_PREFIX
-     */
-    private boolean isEntrySet( List<RecordField> listRecordFields, int nIdDirectory )
-    {
-        int nIdEntry = AppPropertiesService.getPropertyInt( PROPERTY_FIELD_WORKFLOW_PREFIX + nIdDirectory, ENTRY_NOT_SET );
-
-        if ( nIdEntry == ENTRY_NOT_SET )
-        {
-            return true;
-        }
-
-        for ( RecordField recordField : listRecordFields )
-        {
-            if ( recordField.getEntry(  ).getIdEntry(  ) == nIdEntry )
-            {
-                if ( StringUtils.isNotBlank( recordField.getValue(  ) ) )
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Inits workflow actions (if available).
-     * @param record the record
-     * @param directory the directory
-     */
-    private void doWorkflowActions( Record record, Directory directory )
-    {
-        if ( WorkflowService.getInstance(  ).isAvailable(  ) &&
-                ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) )
-        {
-            WorkflowService.getInstance(  )
-                           .getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
-                directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ), null );
-            WorkflowService.getInstance(  )
-                           .executeActionAutomatic( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
-                directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ) );
-        }
-    }
-
-    /**
-     * Gets the record fields list for the record.
-     * @param request the request
-     * @param record the record
-     * @return the record fields
-     * @throws DirectoryErrorException if occurs
-     */
-    private List<RecordField> getRecordFields( HttpServletRequest request, Record record )
-        throws DirectoryErrorException
-    {
-        List<RecordField> listRecordFields = new ArrayList<RecordField>(  );
-        EntryFilter filter = new EntryFilter(  );
-        filter.setIdDirectory( record.getDirectory(  ).getIdDirectory(  ) );
-        filter.setIsComment( EntryFilter.FILTER_FALSE );
-        filter.setIsEntryParentNull( EntryFilter.FILTER_TRUE );
-
-        List<IEntry> listEntryFirstLevel = EntryHome.getEntryList( filter, _pluginDirectory );
-
-        for ( IEntry entry : listEntryFirstLevel )
-        {
-            // no directory error testing (i.e. mandatory fields can be blanks)
-            DirectoryUtils.getDirectoryRecordFieldData( record, request, entry.getIdEntry(  ), false, listRecordFields,
-                _pluginDirectory, request.getLocale(  ) );
-        }
-
-        return listRecordFields;
     }
 
     /**
@@ -282,7 +279,7 @@ public class DirectoryRestService
 
     /**
      * delete the record
-     * @param request the request
+     * @param strRecordId the id record
      * @return the record deleted
      * @throws DirectoryErrorException if occurs
      * @throws DirectoryRestException if occurs
@@ -383,6 +380,122 @@ public class DirectoryRestService
     }
 
     /**
+     * Update record
+     * @param request the HTTP request
+     * @return the record
+     * @throws DirectoryErrorException exception if there is an error
+     * @throws DirectoryRestException exception if there is an error
+     */
+    public Record updateRecord( HttpServletRequest request )
+        throws DirectoryRestException, DirectoryErrorException
+    {
+        String strRecordId = request.getParameter( PARAMETER_RECORD_ID );
+
+        Record record = getRecord( strRecordId );
+
+        List<RecordField> listRecordFields = getRecordFields( request, record );
+
+        for ( RecordField recordField : listRecordFields )
+        {
+            int idEntry = recordField.getEntry(  ).getIdEntry(  );
+            String strEntryId = request.getParameter( Integer.toString( idEntry ) );
+
+            if ( strEntryId != null )
+            {
+                RecordFieldFilter filter = new RecordFieldFilter(  );
+                filter.setIdEntry( idEntry );
+                filter.setIdRecord( record.getIdRecord(  ) );
+                RecordFieldHome.removeByFilter( filter, _pluginDirectory );
+                recordField.setRecord( record );
+                RecordFieldHome.create( recordField, _pluginDirectory );
+            }
+        }
+
+        return getRecord( strRecordId );
+    }
+
+    // PRIVATE METHODS
+
+    /**
+     * <code>true</code> if the entry is set, or if {@link #PROPERTY_FIELD_WORKFLOW_PREFIX} is empty, <code>false</code> otherwise.
+     * This is use to bypass workflow initialization if the field is not set.
+     * @param listRecordFields record field list
+     * @param nIdDirectory the id directory
+     * @return <code>true</code> if the entry is set, or if {@link #PROPERTY_FIELD_WORKFLOW_PREFIX} is empty, <code>false</code> otherwise.
+     * @see #PROPERTY_FIELD_WORKFLOW_PREFIX
+     */
+    private boolean isEntrySet( List<RecordField> listRecordFields, int nIdDirectory )
+    {
+        int nIdEntry = AppPropertiesService.getPropertyInt( DirectoryRestConstants.PROPERTY_FIELD_WORKFLOW_PREFIX +
+                nIdDirectory, DirectoryUtils.CONSTANT_ID_NULL );
+
+        if ( nIdEntry == DirectoryUtils.CONSTANT_ID_NULL )
+        {
+            return true;
+        }
+
+        for ( RecordField recordField : listRecordFields )
+        {
+            if ( recordField.getEntry(  ).getIdEntry(  ) == nIdEntry )
+            {
+                if ( StringUtils.isNotBlank( recordField.getValue(  ) ) )
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Inits workflow actions (if available).
+     * @param record the record
+     * @param directory the directory
+     */
+    private void doWorkflowActions( Record record, Directory directory )
+    {
+        if ( WorkflowService.getInstance(  ).isAvailable(  ) &&
+                ( directory.getIdWorkflow(  ) != DirectoryUtils.CONSTANT_ID_NULL ) )
+        {
+            WorkflowService.getInstance(  )
+                           .getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
+                directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ), null );
+            WorkflowService.getInstance(  )
+                           .executeActionAutomatic( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
+                directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ) );
+        }
+    }
+
+    /**
+     * Gets the record fields list for the record.
+     * @param request the request
+     * @param record the record
+     * @return the record fields
+     * @throws DirectoryErrorException if occurs
+     */
+    private List<RecordField> getRecordFields( HttpServletRequest request, Record record )
+        throws DirectoryErrorException
+    {
+        List<RecordField> listRecordFields = new ArrayList<RecordField>(  );
+        EntryFilter filter = new EntryFilter(  );
+        filter.setIdDirectory( record.getDirectory(  ).getIdDirectory(  ) );
+        filter.setIsComment( EntryFilter.FILTER_FALSE );
+        filter.setIsEntryParentNull( EntryFilter.FILTER_TRUE );
+
+        List<IEntry> listEntryFirstLevel = EntryHome.getEntryList( filter, _pluginDirectory );
+
+        for ( IEntry entry : listEntryFirstLevel )
+        {
+            // no directory error testing (i.e. mandatory fields can be blanks)
+            DirectoryUtils.getDirectoryRecordFieldData( record, request, entry.getIdEntry(  ), false, listRecordFields,
+                _pluginDirectory, request.getLocale(  ) );
+        }
+
+        return listRecordFields;
+    }
+
+    /**
      * Finds the record field matching the entry id and field id
      * @param nIdEntry the entry id
      * @param nIdField the field Id
@@ -400,28 +513,6 @@ public class DirectoryRestService
         }
 
         return null;
-    }
-
-    /**
-     * Checks if the record field has the same entry id and field id
-     * @param nIdEntry the entry id
-     * @param nIdField the field id
-     * @param recordField the record field
-     * @return boolean.
-     */
-    private boolean isSameRecordField( int nIdEntry, int nIdField, RecordField recordField )
-    {
-        if ( recordField.getEntry(  ).getIdEntry(  ) == nIdEntry )
-        {
-            int nIdFieldFound = ( recordField.getField(  ) == null ) ? 0 : recordField.getField(  ).getIdField(  );
-
-            if ( nIdFieldFound == nIdField )
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -468,36 +559,24 @@ public class DirectoryRestService
     }
 
     /**
-     * update record
-     * @param request
-     * @return
-     * @throws Exception
+     * Checks if the record field has the same entry id and field id
+     * @param nIdEntry the entry id
+     * @param nIdField the field id
+     * @param recordField the record field
+     * @return boolean.
      */
-    public Record updateRecord( HttpServletRequest request )
-        throws Exception
+    private boolean isSameRecordField( int nIdEntry, int nIdField, RecordField recordField )
     {
-        String strRecordId = request.getParameter( PARAMETER_RECORD_ID );
-
-        Record record = getRecord( strRecordId );
-
-        List<RecordField> listRecordFields = getRecordFields( request, record );
-
-        for ( RecordField recordField : listRecordFields )
+        if ( recordField.getEntry(  ).getIdEntry(  ) == nIdEntry )
         {
-            int idEntry = recordField.getEntry(  ).getIdEntry(  );
-            String strEntryId = request.getParameter( Integer.toString( idEntry ) );
+            int nIdFieldFound = ( recordField.getField(  ) == null ) ? 0 : recordField.getField(  ).getIdField(  );
 
-            if ( strEntryId != null )
+            if ( nIdFieldFound == nIdField )
             {
-                RecordFieldFilter filter = new RecordFieldFilter(  );
-                filter.setIdEntry( idEntry );
-                filter.setIdRecord( record.getIdRecord(  ) );
-                RecordFieldHome.removeByFilter( filter, _pluginDirectory );
-                recordField.setRecord( record );
-                RecordFieldHome.create( recordField, _pluginDirectory );
+                return true;
             }
         }
 
-        return getRecord( strRecordId );
+        return false;
     }
 }

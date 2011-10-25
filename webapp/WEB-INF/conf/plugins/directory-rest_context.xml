@@ -1,29 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" >
+	
+	<!-- Service -->
+	<bean id="directory-rest.directoryRestService" class="fr.paris.lutece.plugins.directory.modules.rest.service.DirectoryRestService" />
+	
+	<!-- Formatters -->
+	<bean id="directory-rest.recordFormatterXml" class="fr.paris.lutece.plugins.directory.modules.rest.service.formatters.RecordFormatterXml">
+		<property name="directoryRestService" ref="directory-rest.directoryRestService" />
+	</bean>
+	<bean id="directory-rest.recordFormatterJson" class="fr.paris.lutece.plugins.directory.modules.rest.service.formatters.RecordFormatterJson">
+		<property name="directoryRestService" ref="directory-rest.directoryRestService" />
+	</bean>
+	<bean id="directory-rest.directoryFormatterXml" class="fr.paris.lutece.plugins.directory.modules.rest.service.formatters.DirectoryFormatterXml" />
+	<bean id="directory-rest.directoryFormatterJson" class="fr.paris.lutece.plugins.directory.modules.rest.service.formatters.DirectoryFormatterJson" />
 
-<beans>
+	<!-- Writers -->
+	<bean id="directory-rest.recordWriter" class="fr.paris.lutece.plugins.directory.modules.rest.service.writers.RecordWriter" scope="singleton">
+		<property name="formatters">
+			<map>
+				<entry key="application/xml" value-ref="directory-rest.recordFormatterXml" />
+				<entry key="application/json" value-ref="directory-rest.recordFormatterJson" />
+			</map>
+		</property>
+	</bean>
+	<bean id="directory-rest.directoryWriter" class="fr.paris.lutece.plugins.directory.modules.rest.service.writers.DirectoryWriter" scope="singleton">
+		<property name="formatters">
+			<map>
+				<entry key="application/xml" value-ref="directory-rest.directoryFormatterXml" />
+				<entry key="application/json" value-ref="directory-rest.directoryFormatterJson" />
+			</map>
+		</property>
+	</bean>
 
-    <bean id="xmlRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.XmlRecordHandler" />
-    <bean id="xmlRecordsHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.XmlRecordsListHandler" />
-    <bean id="jsonRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.JsonRecordHandler" />
-    <bean id="jsonRecordsHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.JsonRecordsListHandler" />
-    <bean id="insertRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.InsertRecordHandler" />
-    <bean id="updateRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.UpdateRecordHandler" />
-    <bean id="deleteRecordHandler" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.DeleteRecordHandler" />
-
-    <bean id="listUriHandlers" class="fr.paris.lutece.plugins.directory.modules.rest.handlers.UriHandlersRegistry" >
-        <property name="handlersList">
-            <list>
-                <ref bean="xmlRecordHandler" />
-                <ref bean="xmlRecordsHandler" />
-                <ref bean="jsonRecordHandler" />
-                <ref bean="jsonRecordsHandler" />
-                <ref bean="insertRecordHandler" />
-                <ref bean="updateRecordHandler" />
-                <ref bean="deleteRecordHandler" />
-            </list>
-        </property>
+	
+	<!-- REST -->
+    <bean id="directory-rest.directoryRest" class="fr.paris.lutece.plugins.directory.modules.rest.rs.DirectoryRest">
+    	<property name="directoryRestService" ref="directory-rest.directoryRestService" />
     </bean>
-
-
 </beans>

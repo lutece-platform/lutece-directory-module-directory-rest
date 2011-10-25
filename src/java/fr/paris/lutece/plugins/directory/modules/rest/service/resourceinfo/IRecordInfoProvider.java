@@ -31,33 +31,18 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugins.directory.modules.rest.handlers;
+package fr.paris.lutece.plugins.directory.modules.rest.service.resourceinfo;
 
-import java.util.List;
+import fr.paris.lutece.plugins.directory.business.Record;
+import fr.paris.lutece.plugins.rest.service.resourceinfo.IResourceInfoProvider;
 
 
 /**
- * UriHandlersRegistry
+ *
+ * IRecordInfoProvider
+ *
  */
-public class UriHandlersRegistry
+public interface IRecordInfoProvider extends IResourceInfoProvider<Record>
 {
-    private List<UriHandler> _listHandlers;
-
-    /**
-     * Gets the list
-     * @return The list
-     */
-    public List<UriHandler> getHandlersList(  )
-    {
-        return _listHandlers;
-    }
-
-    /**
-     * Sets the list
-     * @param list The List
-     */
-    public void setHandlersList( List<UriHandler> list )
-    {
-        _listHandlers = list;
-    }
+    // only generic fix to be Spring compliant
 }
