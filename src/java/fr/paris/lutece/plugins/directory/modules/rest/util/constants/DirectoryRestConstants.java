@@ -85,7 +85,7 @@ public final class DirectoryRestConstants
     public static final String TAG_RECORD_FIELDS = "RecordFields";
 
     // TEMPLATES
-    public static final String TEMPLATE_WADL = "admin/plugins/crm/modules/rest/wadl.xml";
+    public static final String TEMPLATE_WADL = "admin/plugins/directory/modules/rest/wadl.xml";
 
     /**
      * Private constructor
