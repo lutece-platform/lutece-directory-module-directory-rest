@@ -29,7 +29,7 @@
 
            <init-param>
                <param-name>elementsSignature</param-name>
-               <param-value>id_directory,id_directory_record</param-value>
+               <param-value></param-value>
            </init-param>
 
            <init-param>

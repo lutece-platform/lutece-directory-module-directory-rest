@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <title>Usage</title>
+    </properties>
+    <body>
+        <section name="Usage">
+            <subsection name="Test JSP">
+                <p>
+                	There is a JSP that allow to run test on the module-directory-rest.
+                	It is accessible through the following link :
+                </p>
+                <p>
+                	<strong>jsp/admin/plugins/directory/modules/rest/TestDirectoryRest.jsp</strong>
+                </p>
+                <p>
+                	<strong>Note : </strong>To access to this JSP, one must be authenticated in the 
+                	Back-Office. The filter tags must also be commented in the file directory-rest.xml
+                	so the module won't use the security, otherwise, an HTTP 401 response will be returned.
+                </p>
+            </subsection>
+            <subsection name="URLs syntax">
+            	<h3>Retrieve the information of one or several record in format XML or JSON</h3>
+            	<p>
+            		XML syntax :
+            	</p>
+            	<ul>
+            		<li>To get all the records :</li>
+            	</ul>
+            	<div class="source">
+<pre>
+http://myhost/mywebapp/rest/directory/{id_directory}/records
+or
+http://myhost/mywebapp/rest/directory/{id_directory}/records.xml
+</pre>
+				</div>
+				<ul>
+            		<li>To get one record :</li>
+            	</ul>
+				<div class="source">
+<pre>
+http://myhost/mywebapp/rest/directory/{id_directory}/record/{id_directory_record}
+or
+http://myhost/mywebapp/rest/directory/{id_directory}/record/{id_directory_record}.xml
+</pre>
+            	</div>
+            	<p>
+            		JSON syntax :
+            	</p>
+            	<ul>
+            		<li>To get all the records :</li>
+            	</ul>
+            	<div class="source">
+<pre>
+http://myhost/mywebapp/rest/directory/{id_directory}/records.json
+</pre>
+				</div>
+				<ul>
+            		<li>To get one record :</li>
+            	</ul>
+				<div class="source">
+<pre>
+http://myhost/mywebapp/rest/directory/{id_directory}/record/{id_directory_record}.json
+</pre>
+            	</div>
+            	
+            	<h3>Create/Complete a record</h3>
+            	<p>
+            		To create/complete a record, a form using the method <strong>POST</strong> and having an entype
+            		<strong>multipart/form-data</strong> and with the following parameters are needed : 
+            	</p>
+            	<table>
+            		<tr>
+            			<th>Parameter's name</th>
+            			<th>Parameter's type</th>
+            			<th>Description</th>
+            		</tr>
+            		<tr>
+            			<td>id_directory</td>
+            			<td>text</td>
+            			<td>ID of the directory (mandatory)</td>
+            		</tr>
+            		<tr>
+            			<td>id_directory_record</td>
+            			<td>text</td>
+            			<td>ID record (if not empty string, then is it the operation to complete)</td>
+            		</tr>
+            	</table>
+           		<div class="source">
+<pre>
+http://myhost/mywebapps/rest/directory/record
+</pre>
+				</div>
+				
+				<h3>Update a record</h3>
+            	<p>
+            		To update a record, it is exactly the same as creating/completing a record, except that the header of the
+            		HTTP request must have the method <strong>PUT</strong>.
+            	</p>
+				
+            	<h3>Remove a record</h3>
+            	<p>
+            		To remove a record, the header of the HTTP request must have the method <strong>DELETE</strong> and have
+            		the following parameter : 
+            	</p>
+            	<table>
+            		<tr>
+            			<th>Parameter's name</th>
+            			<th>Parameter's type</th>
+            			<th>Description</th>
+            		</tr>
+            		<tr>
+            			<td>id_directory_record</td>
+            			<td>text</td>
+            			<td>ID record</td>
+            		</tr>
+            	</table>
+            	<div class="source">
+<pre>
+http://myhost/mywebapps/rest/directory/record
+</pre>
+				</div>
+            </subsection>
+        </section>
+    </body>
+</document>

@@ -35,6 +35,13 @@ xmlns:xsd="http://www.w3.org/2001/XMLSchema">
                 </response>
             </method>
         </resource>
+        <resource path="record/{id_directory_record}">
+            <method name="DELETE" >
+                <response>
+                    <representation mediaType="text/html"/>
+                </response>
+            </method>
+        </resource>
     </resources>
 </application>
 

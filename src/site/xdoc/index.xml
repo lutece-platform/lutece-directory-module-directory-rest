@@ -11,77 +11,22 @@
                     directory's plugin data.
                 </p>
                 <p>
-                    This module implements the GET method and delivers data as XML or JSON format.
+                    This module implements the 4 basic REST methods GET method and delivers data as XML or JSON format :
                 </p>
-
-            </subsection>
-            <subsection name="Usage">
-                <h3>
-                    XML syntax :
-                </h3>
-                <p>
-                    <div class="source">
-<pre>
-http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/records/
-
-http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/record/{id}
-or
-http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/record/{id}.xml
-</pre>
-</div>
-</p>
-
-<h4>Successful Response format</h4>
-<p>
-<div class="source">
-<pre>
-&lt;?xml version="1.0" encoding="utf-8" ?&gt;
-&lt;Response&gt;
-  &lt;Status&gt;SUCCESS&lt;/Status&gt;
-  &lt;Record&gt;
-    &lt;record_attribute1&gt;value&lt;/record_attribute1&gt;
-      ...
-  &lt;/Record&gt;
-&lt;/Response&gt;
-</pre>
-</div>
-</p>
-<h4>Error Response format</h4>
-
-
-<p>
-<div class="source">
-<pre>
-&lt;?xml version="1.0" encoding="utf-8" ?&gt;
-&lt;Response&gt;
-  &lt;Status&gt;ERROR&lt;/Status&gt;
-  &lt;Error&gt;
-    &lt;Code&gt;1&lt;/Code&gt;
-    &lt;Message&gt;Resource not found.&lt;/Message&gt;
-  &lt;/Error&gt;
-&lt;/Response&gt;
-</pre>
-</div>
-</p>
-
-
-<h3>
-JSON syntax :
-</h3>
-<p>
-    <div class="source">
-<pre>
-http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/records.json/
-
-http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/record/{id}.json
-or
-http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/record.json/{id}
-or
-http://myhost/mywebapp/jsp/site/rest/directory/{id_directory}/record/{id} with
-Content-Type: application/json in the request HTTP header.
-</pre>
-</div>
-                </p>
+				<ul>
+					<li>
+						<strong>Method GET : </strong>delivers data as XML or JSON format
+					</li>
+					<li>
+						<strong>Method POST : </strong>create or complete a record
+					</li>
+					<li>
+						<strong>Method PUT : </strong>update a record
+					</li>
+					<li>
+						<strong>Method DELETE : </strong>delete a record
+					</li>
+				</ul>
             </subsection>
         </section>
     </body>

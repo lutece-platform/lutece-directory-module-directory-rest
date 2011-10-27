@@ -36,6 +36,7 @@ package fr.paris.lutece.plugins.directory.modules.rest.rs;
 import fr.paris.lutece.plugins.directory.business.Directory;
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.modules.rest.service.DirectoryRestService;
+import fr.paris.lutece.plugins.directory.modules.rest.service.http.DirectoryRestHttpServletRequest;
 import fr.paris.lutece.plugins.directory.modules.rest.util.constants.DirectoryRestConstants;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.rest.service.RestConstants;
@@ -53,12 +54,17 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 
 
 /**
@@ -117,7 +123,7 @@ public class DirectoryRest
      * Get the record
      * @param nIdDirectory the id directory
      * @param nIdRecord the id record
-     * @return the XML/JSON
+     * @return the record
      */
     @GET
     @Path( DirectoryRestConstants.PATH_ID_DIRECTORY + DirectoryRestConstants.PATH_RECORD +
@@ -131,12 +137,12 @@ public class DirectoryRest
     {
         try
         {
-            List<Record> listRecord = new ArrayList<Record>(  );
             Record record = _directoryRestService.getRecord( Integer.toString( nIdRecord ) );
 
             if ( ( record != null ) && ( record.getDirectory(  ) != null ) &&
                     ( record.getDirectory(  ).getIdDirectory(  ) == nIdDirectory ) )
             {
+                List<Record> listRecord = new ArrayList<Record>(  );
                 listRecord.add( record );
 
                 return listRecord;
@@ -153,7 +159,7 @@ public class DirectoryRest
     /**
      * Get the records list
      * @param nIdDirectory the id directory
-     * @return the XML/JSON
+     * @return the list of records
      */
     @GET
     @Path( DirectoryRestConstants.PATH_ID_DIRECTORY + DirectoryRestConstants.PATH_RECORDS )
@@ -178,7 +184,7 @@ public class DirectoryRest
     /**
      * Get the directory
      * @param nIdDirectory the id directory
-     * @return the XML/JSON
+     * @return the directory
      */
     @GET
     @Path( DirectoryRestConstants.PATH_ID_DIRECTORY )
@@ -197,7 +203,7 @@ public class DirectoryRest
     /**
      * Get the directories list
      * @param nIdDirectory the id directory
-     * @return the XML/JSON
+     * @return the list of directories
      */
     @GET
     @Path( StringUtils.EMPTY )
@@ -212,4 +218,104 @@ public class DirectoryRest
     }
 
     // ACTIONS
+
+    /**
+     * Insert or complete a record
+     * @param formParams the parameters of the form
+     * @param request the HTTP request
+     * @return the record
+     */
+    @POST
+    @Path( DirectoryRestConstants.PATH_RECORD )
+    @Consumes( MediaType.APPLICATION_FORM_URLENCODED )
+    @Produces( {MediaType.APPLICATION_JSON,
+        MediaType.APPLICATION_XML
+    } )
+    public List<Record> doInsertOrCompleteRecord( MultivaluedMap<String, String> formParams,
+        @Context
+    HttpServletRequest request )
+    {
+        try
+        {
+            HttpServletRequest directoryRestRequest = new DirectoryRestHttpServletRequest( request, formParams );
+            Record record = _directoryRestService.insertOrCompleteRecord( directoryRestRequest );
+
+            if ( record != null )
+            {
+                List<Record> listRecords = new ArrayList<Record>(  );
+                listRecords.add( record );
+
+                return listRecords;
+            }
+        }
+        catch ( Exception e )
+        {
+            AppLogService.error( e );
+        }
+
+        return null;
+    }
+
+    /**
+     * Update a record
+     * @param formParams the parameter of the form
+     * @param request the HTTP form
+     * @return the record
+     */
+    @PUT
+    @Path( DirectoryRestConstants.PATH_RECORD )
+    @Consumes( MediaType.APPLICATION_FORM_URLENCODED )
+    @Produces( {MediaType.APPLICATION_JSON,
+        MediaType.APPLICATION_XML
+    } )
+    public List<Record> doUpdateRecord( MultivaluedMap<String, String> formParams, @Context
+    HttpServletRequest request )
+    {
+        try
+        {
+            HttpServletRequest directoryRestRequest = new DirectoryRestHttpServletRequest( request, formParams );
+            Record record = _directoryRestService.updateRecord( directoryRestRequest );
+
+            if ( record != null )
+            {
+                List<Record> listRecords = new ArrayList<Record>(  );
+                listRecords.add( record );
+
+                return listRecords;
+            }
+        }
+        catch ( Exception e )
+        {
+            AppLogService.error( e );
+        }
+
+        return null;
+    }
+
+    /**
+     * Delete a record
+     * @param strIdRecord the id record
+     * @return the response
+     */
+    @DELETE
+    @Path( DirectoryRestConstants.PATH_RECORD + DirectoryRestConstants.PATH_ID_DIRECTORY_RECORD )
+    @Consumes( MediaType.APPLICATION_FORM_URLENCODED )
+    @Produces( MediaType.TEXT_HTML )
+    public String doDeleteRecord( @PathParam( DirectoryRestConstants.PARAMETER_ID_DIRECTORY_RECORD )
+    String strIdRecord )
+    {
+        String strResponse = StringUtils.EMPTY;
+
+        try
+        {
+            strResponse = _directoryRestService.deleteRecord( strIdRecord );
+        }
+        catch ( Exception e )
+        {
+            AppLogService.error( e );
+            strResponse = e.getMessage(  );
+        }
+
+        return strResponse;
+    }
 }

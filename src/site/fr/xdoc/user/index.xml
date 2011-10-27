@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <title>Utilisation</title>
+    </properties>
+    <body>
+        <section name="Utilisation">
+            <subsection name="JSP de test">
+                <p>
+                	Il existe une JSP permettant de faire des tests sur le module-directory-rest.
+                	Elle est accessible par l'URL suivante :  
+                </p>
+                <p>
+                	<strong>jsp/admin/plugins/directory/modules/rest/TestDirectoryRest.jsp</strong>
+                </p>
+                <p>
+                	<strong>Note : </strong>Pour acc&#233;der &#224; cette JSP, il faut &#234;tre authentifi&#233;
+                	dans le Back-Office. Il faut &#233;galement commenter dans le fichier directory-rest.xml les filtres
+                	de fa&#231;on &#224; ce qu'il n'utilise pas la s&#233;curit&#233;, sinon une r&#233;ponse HTTP 401
+                	sera renvoy&#233;e.
+                </p>
+            </subsection>
+            <subsection name="Syntaxe des URLs">
+            	<h3>R&#233;cup&#233;rer les informations d'une ou plusieurs fiches de directory au format XML ou JSON</h3>
+            	<p>
+            		Syntaxe XML :
+            	</p>
+            	<ul>
+            		<li>Pour obtenir toutes les fiches d'un annuaire :</li>
+            	</ul>
+            	<div class="source">
+<pre>
+http://myhost/mywebapp/rest/directory/{id_directory}/records
+ou
+http://myhost/mywebapp/rest/directory/{id_directory}/records.xml
+</pre>
+				</div>
+				<ul>
+            		<li>Pour obtenir une fiche :</li>
+            	</ul>
+				<div class="source">
+<pre>
+http://myhost/mywebapp/rest/directory/{id_directory}/record/{id_directory_record}
+ou
+http://myhost/mywebapp/rest/directory/{id_directory}/record/{id_directory_record}.xml
+</pre>
+            	</div>
+            	<p>
+            		Syntaxe JSON :
+            	</p>
+            	<ul>
+            		<li>Pour obtenir toutes les fiches d'un annuaire :</li>
+            	</ul>
+            	<div class="source">
+<pre>
+http://myhost/mywebapp/rest/directory/{id_directory}/records.json
+</pre>
+				</div>
+				<ul>
+            		<li>Pour obtenir une fiche :</li>
+            	</ul>
+				<div class="source">
+<pre>
+http://myhost/mywebapp/rest/directory/{id_directory}/record/{id_directory_record}.json
+</pre>
+            	</div>
+            	
+            	<h3>Cr&#233;ation/Compl&#233;tude d'une fiche</h3>
+            	<p>
+            		Pour cr&#233;er/compl&#233;ter une fiche, il faut faire un formulaire de type <strong>POST</strong>,
+            		ayant un enctype <strong>multipart/form-data</strong> et avoir les param&#232;tres suivants : 
+            	</p>
+            	<table>
+            		<tr>
+            			<th>Nom du param&#232;tre</th>
+            			<th>Type du param&#232;tre</th>
+            			<th>Description du param&#232;tre</th>
+            		</tr>
+            		<tr>
+            			<td>id_directory</td>
+            			<td>text</td>
+            			<td>Correspond &#224; l'ID de l'annuaire (obligatoire)</td>
+            		</tr>
+            		<tr>
+            			<td>id_directory_record</td>
+            			<td>text</td>
+            			<td>Correspond &#224; l'ID de la fiche (si non vide, alors il s'agit d'une compl&#233;tude)</td>
+            		</tr>
+            	</table>
+           		<div class="source">
+<pre>
+http://myhost/mywebapps/rest/directory/record
+</pre>
+				</div>
+				
+				<h3>Mise &#224; jour d'une fiche</h3>
+            	<p>
+            		Pour mettre &#224; jour une fiche, il faut faire les m&#234;mes op&#233;rations que pour la cr&#233;ation/compl&#233;tude 
+            		d'une fiche &#224; l'exceptio du fait qu'il faut que le header de la requ&#234;te HTTP doit avoir la m&#233;thode
+            		<strong>PUT</strong>.
+            	</p>
+				
+            	<h3>Suppression d'une fiche</h3>
+            	<p>
+            		Pour supprimer une fiche, il faut avoir dans le header de la requ&#234;te HTTP la m&#233;thode <strong>DELETE</strong>
+            		et avoir le param&#232;tre suivant : 
+            	</p>
+            	<table>
+            		<tr>
+            			<th>Nom du param&#232;tre</th>
+            			<th>Type du param&#232;tre</th>
+            			<th>Description du param&#232;tre</th>
+            		</tr>
+            		<tr>
+            			<td>id_directory_record</td>
+            			<td>text</td>
+            			<td>Correspond &#224; l'ID de la fiche</td>
+            		</tr>
+            	</table>
+            	<div class="source">
+<pre>
+http://myhost/mywebapps/rest/directory/record
+</pre>
+				</div>
+            </subsection>
+        </section>
+    </body>
+</document>

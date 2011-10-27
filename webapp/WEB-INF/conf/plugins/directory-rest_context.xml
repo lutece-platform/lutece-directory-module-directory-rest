@@ -33,7 +33,6 @@
 			</map>
 		</property>
 	</bean>
-
 	
 	<!-- REST -->
     <bean id="directory-rest.directoryRest" class="fr.paris.lutece.plugins.directory.modules.rest.rs.DirectoryRest">

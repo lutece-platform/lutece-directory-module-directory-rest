@@ -73,6 +73,16 @@
 	                    <input class="button" type="button" value="View" onclick="javascript:onRecordView(  )"/>
 	                </form>
 	            </div>
+	            
+	            <div class="highlight-box">
+	                <h2>Delete record</h2>
+	                <form action="jsp/admin/plugins/directory/modules/rest/TestDirectoryRestDelete.jsp" name="formDeleteRecord">
+	                    <label for="id_directory_record">ID record * : </label>
+	                    <input type="text" name="id_directory_record" size="10" maxlength="255" />
+	                    <br/>
+	                    <input class="button" type="submit" value="Delete" />
+	                </form>
+	            </div>
         	</div>
         </div>
     </body>
