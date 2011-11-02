@@ -159,6 +159,7 @@ public class DirectoryRest
     /**
      * Get the records list
      * @param nIdDirectory the id directory
+     * @param request the HTTP request
      * @return the list of records
      */
     @GET
@@ -167,11 +168,12 @@ public class DirectoryRest
         MediaType.APPLICATION_XML
     } )
     public List<Record> getRecordsList( @PathParam( DirectoryRestConstants.PARAMETER_ID_DIRECTORY )
-    int nIdDirectory )
+    int nIdDirectory, @Context
+    HttpServletRequest request )
     {
         try
         {
-            return _directoryRestService.getRecordsList( nIdDirectory );
+            return _directoryRestService.getRecordsList( nIdDirectory, request );
         }
         catch ( Exception e )
         {
