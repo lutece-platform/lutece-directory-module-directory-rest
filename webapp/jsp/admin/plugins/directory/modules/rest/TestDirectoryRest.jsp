@@ -10,7 +10,7 @@
                 var idDirectory = document.formGetRecord.id_directory.value;
                 var idDirectoryRecord = document.formGetRecord.id_directory_record.value;
                 var format = document.formGetRecord.format.value;
-                if ( typeof( idDirectoryRecord ) == 'undefined' ) {
+                if ( typeof( idDirectoryRecord ) == 'undefined' || idDirectoryRecord == '' ) {
                 	document.location= 'rest/directory/' + idDirectory + '/records' + format;
                 } else {
                 	document.location= 'rest/directory/' + idDirectory + '/record/' + idDirectoryRecord + format;
@@ -19,7 +19,7 @@
             function onDirectoryView(  ) {
                 var idDirectory = document.formGetDirectory.id_directory.value;
                 var format = document.formGetDirectory.format.value;
-                if ( typeof( idDirectory ) == 'undefined' ) {
+                if ( typeof( idDirectory ) == 'undefined' || idDirectory == '' ) {
                 	document.location= 'rest/directory' + format;
                 } else {
                 	document.location= 'rest/directory/' + idDirectory + format;

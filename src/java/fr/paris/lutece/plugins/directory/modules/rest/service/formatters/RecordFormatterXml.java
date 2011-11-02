@@ -33,15 +33,16 @@
  */
 package fr.paris.lutece.plugins.directory.modules.rest.service.formatters;
 
+import fr.paris.lutece.plugins.directory.business.Directory;
 import fr.paris.lutece.plugins.directory.business.Field;
 import fr.paris.lutece.plugins.directory.business.IEntry;
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.business.RecordField;
 import fr.paris.lutece.plugins.directory.modules.rest.service.DirectoryRestService;
-import fr.paris.lutece.plugins.directory.modules.rest.service.resourceinfo.IRecordInfoProvider;
 import fr.paris.lutece.plugins.directory.modules.rest.util.constants.DirectoryRestConstants;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
+import fr.paris.lutece.plugins.rest.business.resourceinfo.IResourceInfo;
 import fr.paris.lutece.plugins.rest.service.formatters.IFormatter;
 import fr.paris.lutece.plugins.rest.service.resourceinfo.ResourceInfoManager;
 import fr.paris.lutece.plugins.rest.util.xml.XMLUtil;
@@ -56,10 +57,10 @@ import freemarker.template.utility.StringUtil;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 
 /**
@@ -98,7 +99,6 @@ public class RecordFormatterXml implements IFormatter<Record>
         XmlUtil.beginElement( sbXml, DirectoryRestConstants.TAG_RESPONSE );
         XmlUtil.addElement( sbXml, DirectoryRestConstants.TAG_STATUS, DirectoryRestConstants.STATUS_SUCCESS );
 
-        formatResourceInfo( record );
         formatRecord( sbXml, record );
 
         XmlUtil.endElement( sbXml, DirectoryRestConstants.TAG_RESPONSE );
@@ -135,8 +135,10 @@ public class RecordFormatterXml implements IFormatter<Record>
     private void formatRecord( StringBuffer sbXml, Record record )
     {
         XmlUtil.beginElement( sbXml, DirectoryRestConstants.TAG_RECORD );
-        // FIXME use a better structure for this XML. A field could be named "Id" and would cause an undeterministic behaviour.
         XmlUtil.addElement( sbXml, DirectoryRestConstants.TAG_ID, record.getIdRecord(  ) );
+
+        // Put the resource info
+        formatResourceInfo( sbXml, record );
 
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
         List<IEntry> listEntries = _directoryRestService.getEntries( record.getDirectory(  ).getIdDirectory(  ) );
@@ -298,23 +300,52 @@ public class RecordFormatterXml implements IFormatter<Record>
 
     /**
      * Format the resource info
+     * @param sbXml the XML
      * @param record the record
-     * @return the XML
      */
-    private String formatResourceInfo( Record record )
+    private void formatResourceInfo( StringBuffer sbXml, Record record )
     {
-        StringBuffer sbXml = new StringBuffer(  );
-        Map<String, String> listResourceInfos = ResourceInfoManager.getResourceInfo( IRecordInfoProvider.class,
-                Integer.toString( record.getIdRecord(  ) ) );
+        Directory directory = _directoryRestService.getDirectory( record.getDirectory(  ).getIdDirectory(  ) );
+        Map<String, String> mapParams = new HashMap<String, String>(  );
+        mapParams.put( DirectoryRestConstants.PARAMETER_ID_RESOURCE, Integer.toString( record.getIdRecord(  ) ) );
+        mapParams.put( DirectoryRestConstants.PARAMETER_RESOURCE_TYPE, Record.WORKFLOW_RESOURCE_TYPE );
+        mapParams.put( DirectoryRestConstants.PARAMETER_ID_WORKFLOW, Integer.toString( directory.getIdWorkflow(  ) ) );
+
+        List<IResourceInfo> listResourceInfos = ResourceInfoManager.getResourceInfo( mapParams );
 
         if ( ( listResourceInfos != null ) && !listResourceInfos.isEmpty(  ) )
         {
-            for ( Entry<String, String> resourceInfo : listResourceInfos.entrySet(  ) )
+            for ( IResourceInfo resourceInfo : listResourceInfos )
+            {
+                formatResourceInfo( sbXml, resourceInfo );
+            }
+        }
+    }
+
+    /**
+     * Format the resource info
+     * @param sbXml the XML
+     * @param resourceInfo the resource info
+     */
+    private void formatResourceInfo( StringBuffer sbXml, IResourceInfo resourceInfo )
+    {
+        if ( resourceInfo != null )
+        {
+            if ( resourceInfo.hasChildren(  ) )
+            {
+                XmlUtil.beginElement( sbXml, resourceInfo.getKey(  ) );
+
+                for ( IResourceInfo child : resourceInfo.getListChildren(  ) )
+                {
+                    formatResourceInfo( sbXml, child );
+                }
+
+                XmlUtil.endElement( sbXml, resourceInfo.getKey(  ) );
+            }
+            else
             {
                 XmlUtil.addElement( sbXml, resourceInfo.getKey(  ), resourceInfo.getValue(  ) );
             }
         }
-
-        return sbXml.toString(  );
     }
 }

@@ -63,6 +63,11 @@ public final class DirectoryRestConstants
     public static final String MESSAGE_DIRECTORY_REST = "Directory Rest - ";
     public static final String MESSAGE_RECORD_NOT_FOUND = "Record not found, ID : ";
 
+    // PARAMETERS
+    public static final String PARAMETER_ID_RESOURCE = "id_resource";
+    public static final String PARAMETER_ID_WORKFLOW = "id_workflow";
+    public static final String PARAMETER_RESOURCE_TYPE = "resource_type";
+
     // MARKS
     public static final String MARK_BASE_URL = "base_url";
 

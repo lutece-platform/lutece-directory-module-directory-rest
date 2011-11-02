@@ -33,15 +33,16 @@
  */
 package fr.paris.lutece.plugins.directory.modules.rest.service.formatters;
 
+import fr.paris.lutece.plugins.directory.business.Directory;
 import fr.paris.lutece.plugins.directory.business.Field;
 import fr.paris.lutece.plugins.directory.business.IEntry;
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.business.RecordField;
 import fr.paris.lutece.plugins.directory.modules.rest.service.DirectoryRestService;
-import fr.paris.lutece.plugins.directory.modules.rest.service.resourceinfo.IRecordInfoProvider;
 import fr.paris.lutece.plugins.directory.modules.rest.util.constants.DirectoryRestConstants;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
+import fr.paris.lutece.plugins.rest.business.resourceinfo.IResourceInfo;
 import fr.paris.lutece.plugins.rest.service.formatters.IFormatter;
 import fr.paris.lutece.plugins.rest.service.resourceinfo.ResourceInfoManager;
 import fr.paris.lutece.plugins.rest.util.json.JSONUtil;
@@ -55,10 +56,10 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 
 /**
@@ -279,12 +280,44 @@ public class RecordFormatterJson implements IFormatter<Record>
      */
     private void formatResourceInfo( JSONObject jsonObject, Record record )
     {
-        Map<String, String> listResourceInfos = ResourceInfoManager.getResourceInfo( IRecordInfoProvider.class,
-                Integer.toString( record.getIdRecord(  ) ) );
+        Directory directory = _directoryRestService.getDirectory( record.getDirectory(  ).getIdDirectory(  ) );
+        Map<String, String> mapParams = new HashMap<String, String>(  );
+        mapParams.put( DirectoryRestConstants.PARAMETER_ID_RESOURCE, Integer.toString( record.getIdRecord(  ) ) );
+        mapParams.put( DirectoryRestConstants.PARAMETER_RESOURCE_TYPE, Record.WORKFLOW_RESOURCE_TYPE );
+        mapParams.put( DirectoryRestConstants.PARAMETER_ID_WORKFLOW, Integer.toString( directory.getIdWorkflow(  ) ) );
+
+        List<IResourceInfo> listResourceInfos = ResourceInfoManager.getResourceInfo( mapParams );
 
         if ( ( listResourceInfos != null ) && !listResourceInfos.isEmpty(  ) )
         {
-            for ( Entry<String, String> resourceInfo : listResourceInfos.entrySet(  ) )
+            for ( IResourceInfo resourceInfo : listResourceInfos )
+            {
+                formatResourceInfo( jsonObject, resourceInfo );
+            }
+        }
+    }
+
+    /**
+     * Format the resource info
+     * @param jsonObject the json
+     * @param resourceInfo the resource info
+     */
+    private void formatResourceInfo( JSONObject jsonObject, IResourceInfo resourceInfo )
+    {
+        if ( resourceInfo != null )
+        {
+            if ( resourceInfo.hasChildren(  ) )
+            {
+                JSONObject jsonResourceInfo = new JSONObject(  );
+
+                for ( IResourceInfo child : resourceInfo.getListChildren(  ) )
+                {
+                    formatResourceInfo( jsonResourceInfo, child );
+                }
+
+                jsonObject.element( resourceInfo.getKey(  ), jsonResourceInfo );
+            }
+            else
             {
                 jsonObject.element( resourceInfo.getKey(  ), resourceInfo.getValue(  ) );
             }
