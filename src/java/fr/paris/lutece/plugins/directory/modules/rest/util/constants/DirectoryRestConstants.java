@@ -59,6 +59,9 @@ public final class DirectoryRestConstants
     // PROPERTIES
     public static final String PROPERTY_FIELD_WORKFLOW_PREFIX = "directory-rest.entry.workflow.";
     public static final String PROPERTY_MAX_NUMBER_RECORDS = "directory-rest.record.maxNumber";
+    public static final String PROPERTY_MULTIPART_SIZE_THRESHOLD = "directory-rest.multipart.sizeThreshold";
+    public static final String PROPERTY_MULTIPART_REQUEST_SIZE_MAX = "directory-rest.multipart.requestSizeMax";
+    public static final String PROPERTY_MULTIPART_NORMALIZE_FILE_NAME = "directory-rest.multipart.activateNormalizeFileName";
 
     // MESSAGES
     public static final String MESSAGE_DIRECTORY_REST = "Directory Rest - ";

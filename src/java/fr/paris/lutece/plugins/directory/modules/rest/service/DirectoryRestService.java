@@ -56,7 +56,11 @@ import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
+import fr.paris.lutece.portal.web.upload.MultipartHttpServletRequest;
+import fr.paris.lutece.util.http.MultipartUtil;
 
+import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -442,6 +446,31 @@ public class DirectoryRestService
         }
 
         return getRecord( strRecordId );
+    }
+
+    /**
+     * Convert the HTTP request to a {@link MultipartHttpServletRequest}
+     * @param request the HTTP request
+     * @return a {@link MultipartHttpServletRequest}, null if the content is not multipart
+     * @throws SizeLimitExceededException exception if the file size is too big
+     * @throws FileUploadException exception if an unknown error has occurred
+     */
+    public MultipartHttpServletRequest convertRequest( HttpServletRequest request )
+        throws SizeLimitExceededException, FileUploadException
+    {
+        int nSizeThreshold = AppPropertiesService.getPropertyInt( DirectoryRestConstants.PROPERTY_MULTIPART_SIZE_THRESHOLD,
+                -1 );
+        boolean bActivateNormalizeFileName = Boolean.getBoolean( AppPropertiesService.getProperty( 
+                    DirectoryRestConstants.PROPERTY_MULTIPART_NORMALIZE_FILE_NAME ) );
+        String strRequestSizeMax = AppPropertiesService.getProperty( DirectoryRestConstants.PROPERTY_MULTIPART_REQUEST_SIZE_MAX );
+        long nRequestSizeMax = 0;
+
+        if ( StringUtils.isNotBlank( strRequestSizeMax ) && StringUtils.isNumeric( strRequestSizeMax ) )
+        {
+            nRequestSizeMax = Long.parseLong( strRequestSizeMax );
+        }
+
+        return MultipartUtil.convert( nSizeThreshold, nRequestSizeMax, bActivateNormalizeFileName, request );
     }
 
     // PRIVATE METHODS

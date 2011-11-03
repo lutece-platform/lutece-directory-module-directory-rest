@@ -43,6 +43,7 @@ import fr.paris.lutece.plugins.rest.service.RestConstants;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPathService;
+import fr.paris.lutece.portal.web.upload.MultipartHttpServletRequest;
 import fr.paris.lutece.util.html.HtmlTemplate;
 
 import org.apache.commons.lang.StringUtils;
@@ -259,6 +260,50 @@ public class DirectoryRest
     }
 
     /**
+     * Insert or complete a record in enctype multipart
+     * @param request the HTTP request
+     * @return the record
+     */
+    @POST
+    @Path( DirectoryRestConstants.PATH_RECORD )
+    @Consumes( MediaType.MULTIPART_FORM_DATA )
+    @Produces( {MediaType.APPLICATION_JSON,
+        MediaType.APPLICATION_XML
+    } )
+    public List<Record> doMultipartInsertOrCompleteRecord( @Context
+    HttpServletRequest request )
+    {
+        try
+        {
+            MultipartHttpServletRequest multipartRequest = _directoryRestService.convertRequest( request );
+            Record record = null;
+
+            if ( multipartRequest != null )
+            {
+                record = _directoryRestService.insertOrCompleteRecord( multipartRequest );
+            }
+            else
+            {
+                record = _directoryRestService.insertOrCompleteRecord( request );
+            }
+
+            if ( record != null )
+            {
+                List<Record> listRecords = new ArrayList<Record>(  );
+                listRecords.add( record );
+
+                return listRecords;
+            }
+        }
+        catch ( Exception e )
+        {
+            AppLogService.error( e );
+        }
+
+        return null;
+    }
+
+    /**
      * Update a record
      * @param formParams the parameter of the form
      * @param request the HTTP form
@@ -277,6 +322,50 @@ public class DirectoryRest
         {
             HttpServletRequest directoryRestRequest = new DirectoryRestHttpServletRequest( request, formParams );
             Record record = _directoryRestService.updateRecord( directoryRestRequest );
+
+            if ( record != null )
+            {
+                List<Record> listRecords = new ArrayList<Record>(  );
+                listRecords.add( record );
+
+                return listRecords;
+            }
+        }
+        catch ( Exception e )
+        {
+            AppLogService.error( e );
+        }
+
+        return null;
+    }
+
+    /**
+     * Update a record in enctype multipart
+     * @param request the HTTP form
+     * @return the record
+     */
+    @PUT
+    @Path( DirectoryRestConstants.PATH_RECORD )
+    @Consumes( MediaType.MULTIPART_FORM_DATA )
+    @Produces( {MediaType.APPLICATION_JSON,
+        MediaType.APPLICATION_XML
+    } )
+    public List<Record> doMultipartUpdateRecord( @Context
+    HttpServletRequest request )
+    {
+        try
+        {
+            MultipartHttpServletRequest multipartRequest = _directoryRestService.convertRequest( request );
+            Record record = null;
+
+            if ( multipartRequest != null )
+            {
+                record = _directoryRestService.updateRecord( multipartRequest );
+            }
+            else
+            {
+                record = _directoryRestService.updateRecord( request );
+            }
 
             if ( record != null )
             {
