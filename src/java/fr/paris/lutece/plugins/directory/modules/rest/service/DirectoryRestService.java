@@ -64,6 +64,8 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -136,37 +138,45 @@ public class DirectoryRestService
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
 
         DirectoryAdminSearchFields searchFields = new DirectoryAdminSearchFields(  );
-        searchFields.setMapQuery( DirectoryUtils.getSearchRecordData( request, nIdDirectory,
-                DirectoryUtils.getPlugin(  ), request.getLocale(  ) ) );
+        Enumeration paramNames = request.getParameterNames(  );
+        HashMap<String, List<RecordField>> mapQuery = null;
+
+        if ( paramNames.hasMoreElements(  ) )
+        {
+            mapQuery = DirectoryUtils.getSearchRecordData( request, nIdDirectory, DirectoryUtils.getPlugin(  ),
+                    request.getLocale(  ) );
+        }
+
+        searchFields.setMapQuery( mapQuery );
         searchFields.setSortParameters( request, directory, pluginDirectory );
 
         boolean bWorkflowServiceEnable = WorkflowService.getInstance(  ).isAvailable(  );
 
         List<Integer> listIdsRecord = null;
+        List<Record> listRecords = null;
 
         try
         {
             listIdsRecord = DirectoryUtils.getListResults( request, directory, bWorkflowServiceEnable, true,
                     searchFields, null, request.getLocale(  ) );
+            listRecords = new ArrayList<Record>(  );
+
+            if ( listIdsRecord != null )
+            {
+                int nMaxNumber = AppPropertiesService.getPropertyInt( DirectoryRestConstants.PROPERTY_MAX_NUMBER_RECORDS,
+                        100 );
+
+                for ( int i = 0; ( i < nMaxNumber ) && ( i < listIdsRecord.size(  ) ); i++ )
+                {
+                    int nIdRecord = listIdsRecord.get( i );
+                    Record record = getRecord( Integer.toString( nIdRecord ) );
+                    listRecords.add( record );
+                }
+            }
         }
         catch ( AccessDeniedException e )
         {
             AppLogService.error( e );
-        }
-
-        List<Record> listRecords = new ArrayList<Record>(  );
-
-        if ( listIdsRecord != null )
-        {
-            int nMaxNumber = AppPropertiesService.getPropertyInt( DirectoryRestConstants.PROPERTY_MAX_NUMBER_RECORDS,
-                    100 );
-
-            for ( int i = 0; ( i < nMaxNumber ) && ( i < listIdsRecord.size(  ) ); i++ )
-            {
-                int nIdRecord = listIdsRecord.get( i );
-                Record record = getRecord( Integer.toString( nIdRecord ) );
-                listRecords.add( record );
-            }
         }
 
         return listRecords;
