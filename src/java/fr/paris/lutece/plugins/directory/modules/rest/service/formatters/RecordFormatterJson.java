@@ -134,7 +134,10 @@ public class RecordFormatterJson implements IFormatter<Record>
                 formatEntry( jsonEntry, entry, mapIdsEntryListRecordFields );
             }
 
-            jsonRecordField.element( jsonEntry );
+            if ( !jsonEntry.isEmpty(  ) )
+            {
+                jsonRecordField.element( jsonEntry );
+            }
         }
 
         jsonObject.element( DirectoryRestConstants.TAG_RECORD_FIELDS, jsonRecordField );
