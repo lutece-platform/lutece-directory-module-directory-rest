@@ -63,10 +63,66 @@ import java.util.Map;
 
 
 /**
- *
- * Format record output to the JSON format
- *
- */
+*
+* Format record output to the JSON format
+* Example of a formatted record JSON :
+* <br />
+* <code>
+* [
+*         {
+*                 "Id":1,
+*                 "state":
+*                 {
+*                         "id-state":1,
+*                         "name":"state1",
+*                         "description":"State 1",
+*                         "id-workflow":"1",
+*                         "is-initial-state":"true",
+*                         "is-required-workgroup-assigned":"false"
+*                 },
+*                 "RecordFields":
+*                 [
+*                         {
+*                                 "group1":
+*                                 {
+*                                         "recordFieldTitle1":"recordFieldValue1"
+*                                 },
+*                                 {
+*                                         "recordFieldTitle2":
+*                                         {
+*                                                 {
+*                                                         "choiceTitle2":"choiceValue2"
+*                                                },
+*                                                {
+*                                                        "choiceTitle3":"choiceValue3"
+*                                                }
+*                                        }
+*                                 }
+*                         },
+*                         {
+*                                 "recordFieldTitle3":"recordFieldValue3"
+*                         },
+*                         {
+*                                 "recordFieldTitle4":
+*                                 {
+*                                         {
+*                                                 "choiceTitle4":"choiceValue4"
+*                                        },
+*                                        {
+*                                                "choiceTitle5":"choiceValue5"
+*                                        }
+*                                }
+*                         }
+*
+*                 ]
+*         }
+*         {
+*                 "Id:2,
+*                 ...
+*  }
+* ]
+* </code>
+*/
 public class RecordFormatterJson implements IFormatter<Record>
 {
     private DirectoryRestService _directoryRestService;
@@ -162,6 +218,29 @@ public class RecordFormatterJson implements IFormatter<Record>
 
     /**
      * Format the entry
+     * Example of a formatted entry type Image/File/CheckBox/Select/RadioButton/Geolocation JSON :
+     * <br />
+     * <code>
+     * {
+     *                 "recordFieldTitle":
+     *                 {
+     *                         {
+     *                                 "choiceTitle1":"choiceValue1"
+     *                        },
+     *                        {
+     *                                "choiceTitle2":"choiceValue2"
+     *                        }
+     *                }
+     * }
+     * </code>
+     * <br />
+     * Example of a formatted JSON for other entry types :
+     * <br />
+     * <code>
+     * {
+     *                 "recordFieldTitle":"recordFieldValue"
+     * }
+     * </code>
      * @param jsonObject the json object
      * @param entry the entry
      * @param mapIdsEntryListRecordFields the map ids entry - list record fields
@@ -208,6 +287,33 @@ public class RecordFormatterJson implements IFormatter<Record>
 
     /**
      * Format the record field
+     * Example of the formatted record field JSON for entry type Image
+     * (display the ID of the file) :
+     * <br />
+     * <code>
+     * {
+     *                 "Id":1,
+     *                 "Width":100,
+     *                 "Height":100
+     * }
+     * </code>
+     * <br />
+     * Example of the formatted record field JSON for entry type File
+     * (display the ID of the file) :
+     * <br />
+     * <code>
+     * {
+     *                 "Id":2
+     * }
+     * </code>
+     * <br />
+     * Example of the formatted record field JSON for other entry types :
+     * <br />
+     * <code>
+     * {
+     *                 "choiceTitle1":"choiceValue1"
+     * }
+     * </code>
      * @param jsonObject the json object
      * @param entry the entry
      * @param recordField the record field
@@ -278,6 +384,30 @@ public class RecordFormatterJson implements IFormatter<Record>
 
     /**
      * Format the resource info
+     * Example of the JSON :
+     * <br />
+     * <code>
+     * [
+     *         {
+     *                 "state":
+     *                 {
+     *                         "id-state":1,
+     *                         "name":"state1",
+     *                         "description":"State 1",
+     *                         "id-workflow":"1",
+     *                         "is-initial-state":"true",
+     *                         "is-required-workgroup-assigned":"false"
+     *                 }
+     *         },
+     *         {
+     *                 "resourceInfo2":
+     *                 {
+     *                         "id-resource-info-2":2,
+     *                         "data":"somedata"
+     *                 }
+     *         }
+     * ]
+     * </code>
      * @param jsonObject the json
      * @param record the record
      */
@@ -302,6 +432,21 @@ public class RecordFormatterJson implements IFormatter<Record>
 
     /**
      * Format the resource info
+     * Example of the JSON :
+     * <br />
+     * <code>
+     * {
+     *         "state":
+     *         {
+     *                 "id-state":1,
+     *                 "name":"state1",
+     *                 "description":"State 1",
+     *                 "id-workflow":"1",
+     *                 "is-initial-state":"true",
+     *                 "is-required-workgroup-assigned":"false"
+     *         }
+     * }
+     * </code>
      * @param jsonObject the json
      * @param resourceInfo the resource info
      */

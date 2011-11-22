@@ -50,6 +50,25 @@ import java.util.List;
 /**
  *
  * Format directory output to the JSON format
+ * Example of the formatted directories list JSON :
+ * <br />
+ * <code>
+ * [
+ *         {
+ *                 "Id":1,
+ *                 "Title":"directoryTitle",
+ *                 "Description":"directoryDescription",
+ *                 "IsEnable":true,
+ *                 "Role":"none",
+ *                 "Workgroup":"all",
+ *                 "IdWorkflow":1
+ *         },
+ *         {
+ *                 ...
+ *         },
+ *         ...
+ * ]
+ * </code>
  *
  */
 public class DirectoryFormatterJson implements IFormatter<Directory>

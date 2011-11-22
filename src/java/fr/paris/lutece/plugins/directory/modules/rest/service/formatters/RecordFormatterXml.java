@@ -66,7 +66,33 @@ import java.util.Map;
 /**
  *
  * Format record output to the XML format
- *
+ * Example of the formatted record XML :
+ * <br />
+ * <code>
+ * <Response>
+ *                 <Status>SUCCESS</Status>
+ *                 <Records>
+ *                         <Record>
+ *                                 <Id>1</Id>
+ *                                 <state>
+ *                                         <id-state>1</id-state>
+ *                                         <name>state1</name>
+ *                                         <description>State 1</name>
+ *                                         <id-workflow>1</id-workflow>
+ *                                         <is-initial-state>true</is-initial-state>
+ *                                         <is-required-workgroup>false</is-required-workgroup>
+ *                                 </state>
+ *                                 <RecordFields>
+ *                                         <recordFieldTitleTypeText1>recordFieldValue1</recordFieldTitleTypeText1>
+ *                                         <recordFieldTitleTypeSelect1>
+ *                                                 <choice1>value1</choice1>
+ *                                                 <choice2>value2</choice2>
+ *                                         </recordFieldTitleTypeSelect1>
+ *                                 </RecordFields>
+ *                         <Record>
+ *                 </Records>
+ * </Response>
+ * </code>
  */
 public class RecordFormatterXml implements IFormatter<Record>
 {
@@ -128,7 +154,29 @@ public class RecordFormatterXml implements IFormatter<Record>
     }
 
     /**
-     * Format the record
+     * Format the record.
+     * Example of a formatted record XML :
+     * <br />
+     * <code>
+     * <Record>
+     *                 <Id>1</Id>
+     *                 <state>
+     *                         <id-state>1</id-state>
+     *                         <name>state1</name>
+     *                         <description>State 1</name>
+     *                         <id-workflow>1</id-workflow>
+     *                         <is-initial-state>true</is-initial-state>
+     *                         <is-required-workgroup>false</is-required-workgroup>
+     *                 </state>
+     *                 <RecordFields>
+     *                         <recordFieldTitleTypeText1>recordFieldValue1</recordFieldTitleTypeText1>
+     *                         <recordFieldTitleTypeSelect1>
+     *                                 <choice1>value1</choice1>
+     *                                 <choice2>value2</choice2>
+     *                         </recordFieldTitleTypeSelect1>
+     *                 </RecordFields>
+     * <Record>
+     * </code>
      * @param sbXml the XML
      * @param record the record to format
      */
@@ -176,6 +224,20 @@ public class RecordFormatterXml implements IFormatter<Record>
 
     /**
      * Get the entry XML
+     * Example of the formatted XML for entry type with mltiple choices :
+     * <br />
+     * <code>
+     * <recordFieldTitleTypeSelect1>
+     *                 <choice1>value1</choice1>
+     *                 <choice2>value2</choice2>
+     * </recordFieldTitleTypeSelect1>
+     * </code>
+     * <br />
+     * Example of the formatted XML for other entry types :
+     * <br/>
+     * <code>
+     * <recordFieldTitleTypeText1>recordFieldValue1</recordFieldTitleTypeText1>
+     * </code>
      * @param entry the entry
      * @param mapIdsEntryListRecordFields the map ids entry - list record fields
      * @return the entry XML
@@ -223,6 +285,25 @@ public class RecordFormatterXml implements IFormatter<Record>
 
     /**
      * Get the record field XML
+     * Example of the formatted XML for entry type Image (display the ID of the file) :
+     * <br />
+     * <code>
+     * <Id>1</Id>
+     * <Width>100</Width>
+     * <Height>100</Height>
+     * </code>
+     * <br />
+     * Example of the formatted XML for entry type File (display the ID of the file) :
+     * <br />
+     * <code>
+     * <Id>1</Id>
+     * </code>
+     * <br />
+     * Example of the formatted XML for other entry types :
+     * <br />
+     * <code>
+     * <choice1>value1</choice1>
+     * </code>
      * @param entry the entry
      * @param recordField the record field
      * @return the XML of the record field
@@ -300,6 +381,23 @@ public class RecordFormatterXml implements IFormatter<Record>
 
     /**
      * Format the resource info
+     * Example of the formatted resource info XML :
+     * <br />
+     * <code>
+     * <state>
+         *                 <id-state>1</id-state>
+         *                 <name>state1</name>
+         *                 <description>State 1</name>
+         *                 <id-workflow>1</id-workflow>
+         *                 <is-initial-state>true</is-initial-state>
+         *                 <is-required-workgroup>false</is-required-workgroup>
+         * </state>
+         * <resourceInfo2>
+         *                 <data>someData</data>
+         *                 ...
+         * </resourceInfo2>
+         * ...
+     * </code>
      * @param sbXml the XML
      * @param record the record
      */
@@ -324,6 +422,18 @@ public class RecordFormatterXml implements IFormatter<Record>
 
     /**
      * Format the resource info
+     * Example of the formatted resource info XML :
+     * <br />
+     * <code>
+     * <state>
+         *                 <id-state>1</id-state>
+         *                 <name>state1</name>
+         *                 <description>State 1</name>
+         *                 <id-workflow>1</id-workflow>
+         *                 <is-initial-state>true</is-initial-state>
+         *                 <is-required-workgroup>false</is-required-workgroup>
+         * </state>
+     * </code>
      * @param sbXml the XML
      * @param resourceInfo the resource info
      */

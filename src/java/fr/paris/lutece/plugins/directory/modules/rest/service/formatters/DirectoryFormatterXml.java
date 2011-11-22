@@ -50,7 +50,27 @@ import java.util.List;
 /**
  *
  * Format directory output to the XML format
- *
+ * Example of the formatted directories list XML :
+ * <code>
+ * <Response>
+ *                 <Status>SUCCESS</Status>
+ *                 <Directories>
+ *                         <Directory>
+ *                                 <Id>1</Id>
+ *                                 <Title>directoryTitle</Title>
+ *                                 <Description>directoryDescription</Description>
+ *                                 <IsEnable>true</IsEnable>
+ *                                 <Role>none</Role>
+ *                                 <Workgroup>all</Workgroup>
+ *                                 <IdWorkflow>1</IdWorkflow>
+ *                         </Directory>
+ *                         <Directory>
+ *                                 ...
+ *                         </Directory>
+ *                         ...
+ *                 </Directories>
+ * </Response>
+ * </code>
  */
 public class DirectoryFormatterXml implements IFormatter<Directory>
 {
