@@ -63,66 +63,58 @@ import java.util.Map;
 
 
 /**
-*
-* Format record output to the JSON format
-* Example of a formatted record JSON :
-* <br />
-* <code>
-* [
-*         {
-*                 "Id":1,
-*                 "state":
-*                 {
-*                         "id-state":1,
-*                         "name":"state1",
-*                         "description":"State 1",
-*                         "id-workflow":"1",
-*                         "is-initial-state":"true",
-*                         "is-required-workgroup-assigned":"false"
-*                 },
-*                 "RecordFields":
-*                 [
-*                         {
-*                                 "group1":
-*                                 {
-*                                         "recordFieldTitle1":"recordFieldValue1"
-*                                 },
-*                                 {
-*                                         "recordFieldTitle2":
-*                                         {
-*                                                 {
-*                                                         "choiceTitle2":"choiceValue2"
-*                                                },
-*                                                {
-*                                                        "choiceTitle3":"choiceValue3"
-*                                                }
-*                                        }
-*                                 }
-*                         },
-*                         {
-*                                 "recordFieldTitle3":"recordFieldValue3"
-*                         },
-*                         {
-*                                 "recordFieldTitle4":
-*                                 {
-*                                         {
-*                                                 "choiceTitle4":"choiceValue4"
-*                                        },
-*                                        {
-*                                                "choiceTitle5":"choiceValue5"
-*                                        }
-*                                }
-*                         }
-*
-*                 ]
-*         }
-*         {
-*                 "Id:2,
-*                 ...
-*  }
-* ]
-* </code>
-*/
+ *
+ * Format record output to the JSON format
+ * Example of a formatted record JSON :
+ * <br />
+ * <code>
+ * [
+ *         {
+ *                 "Id":1,
+ *                 "state":
+ *                 {
+ *                         "id-state":1,
+ *                         "name":"state1",
+ *                         "description":"State 1",
+ *                         "id-workflow":"1",
+ *                         "is-initial-state":"true",
+ *                         "is-required-workgroup-assigned":"false"
+ *                 },
+ *                 "RecordFields":
+ *                 [
+ *                         {
+ *                                 "group1":
+ *                                 {
+ *                                         "recordFieldTitle1":"recordFieldValue1"
+ *                                 },
+ *                                 {
+ *                                         "recordFieldTitle2":
+ *                                         {
+ *                                                                                                "choiceTitle2":"choiceValue2",
+ *                                               "choiceTitle3":"choiceValue3"
+ *                                        }
+ *                                 }
+ *                         },
+ *                         {
+ *                                 "recordFieldTitle3":"recordFieldValue3"
+ *                         },
+ *                         {
+ *                                 "recordFieldTitle4":
+ *                                 {
+ *                                                                                "choiceTitle4":"choiceValue4",
+ *                                                                                "choiceTitle5":"choiceValue5"
+ *                                }
+ *                         }
+ *
+ *                 ]
+ *         }
+ *         {
+ *                 "Id:2,
+ *                 ...
+ *  }
+ * ]
+ * </code>
+ */
 public class RecordFormatterJson implements IFormatter<Record>
 {
     private DirectoryRestService _directoryRestService;
@@ -224,12 +216,8 @@ public class RecordFormatterJson implements IFormatter<Record>
      * {
      *                 "recordFieldTitle":
      *                 {
-     *                         {
-     *                                 "choiceTitle1":"choiceValue1"
-     *                        },
-     *                        {
-     *                                "choiceTitle2":"choiceValue2"
-     *                        }
+     *                                                 "choiceTitle1":"choiceValue1",
+     *                      "choiceTitle2":"choiceValue2"
      *                }
      * }
      * </code>
