@@ -160,31 +160,31 @@ public class RecordFormatterJson implements IFormatter<Record>
 
         for ( IEntry entry : listEntries )
         {
-            JSONObject jsonEntry = new JSONObject(  );
-
             if ( entry.getEntryType(  ).getGroup(  ) )
             {
                 if ( ( entry.getChildren(  ) != null ) && !entry.getChildren(  ).isEmpty(  ) )
                 {
-                    String strTag = fr.paris.lutece.util.string.StringUtil.replaceAccent( entry.getTitle(  ) );
-                    JSONObject json = new JSONObject(  );
-
                     for ( IEntry entryChild : entry.getChildren(  ) )
                     {
-                        formatEntry( json, entryChild, mapIdsEntryListRecordFields );
-                    }
+                        JSONObject jsonEntry = new JSONObject(  );
+                        formatEntry( jsonEntry, entryChild, mapIdsEntryListRecordFields );
 
-                    jsonEntry.accumulate( strTag, json );
+                        if ( !jsonEntry.isEmpty(  ) )
+                        {
+                            jsonRecordField.element( jsonEntry );
+                        }
+                    }
                 }
             }
             else
             {
+                JSONObject jsonEntry = new JSONObject(  );
                 formatEntry( jsonEntry, entry, mapIdsEntryListRecordFields );
-            }
 
-            if ( !jsonEntry.isEmpty(  ) )
-            {
-                jsonRecordField.element( jsonEntry );
+                if ( !jsonEntry.isEmpty(  ) )
+                {
+                    jsonRecordField.element( jsonEntry );
+                }
             }
         }
 
