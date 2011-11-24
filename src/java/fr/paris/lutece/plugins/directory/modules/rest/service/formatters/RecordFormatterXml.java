@@ -40,15 +40,12 @@ import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.business.RecordField;
 import fr.paris.lutece.plugins.directory.modules.rest.service.DirectoryRestService;
 import fr.paris.lutece.plugins.directory.modules.rest.util.constants.DirectoryRestConstants;
-import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.plugins.rest.business.resourceinfo.IResourceInfo;
 import fr.paris.lutece.plugins.rest.service.formatters.IFormatter;
 import fr.paris.lutece.plugins.rest.service.resourceinfo.ResourceInfoManager;
 import fr.paris.lutece.plugins.rest.util.xml.XMLUtil;
 import fr.paris.lutece.portal.service.i18n.I18nService;
-import fr.paris.lutece.portal.service.plugin.Plugin;
-import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.util.xml.XmlUtil;
@@ -188,10 +185,14 @@ public class RecordFormatterXml implements IFormatter<Record>
         // Put the resource info
         formatResourceInfo( sbXml, record );
 
+        /*
         Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
         List<IEntry> listEntries = _directoryRestService.getEntries( record.getDirectory(  ).getIdDirectory(  ) );
         Map<String, List<RecordField>> mapIdsEntryListRecordFields = DirectoryUtils.getMapIdEntryListRecordField( listEntries,
                 record.getIdRecord(  ), pluginDirectory );
+                */
+        List<IEntry> listEntries = _directoryRestService.getEntries( record );
+        Map<String, List<RecordField>> mapIdsEntryListRecordFields = _directoryRestService.getMapIdEntryListRecordField( record );
 
         XmlUtil.beginElement( sbXml, DirectoryRestConstants.TAG_RECORD_FIELDS );
 

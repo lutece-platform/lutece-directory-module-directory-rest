@@ -124,6 +124,7 @@ public class DirectoryRest
      * Get the record
      * @param nIdDirectory the id directory
      * @param nIdRecord the id record
+     * @param request the HTTP request
      * @return the record
      */
     @GET
@@ -134,11 +135,12 @@ public class DirectoryRest
     } )
     public List<Record> getRecord( @PathParam( DirectoryRestConstants.PARAMETER_ID_DIRECTORY )
     int nIdDirectory, @PathParam( DirectoryRestConstants.PARAMETER_ID_DIRECTORY_RECORD )
-    int nIdRecord )
+    int nIdRecord, @Context
+    HttpServletRequest request )
     {
         try
         {
-            Record record = _directoryRestService.getRecord( Integer.toString( nIdRecord ) );
+            Record record = _directoryRestService.getRecord( nIdRecord, request );
 
             if ( ( record != null ) && ( record.getDirectory(  ) != null ) &&
                     ( record.getDirectory(  ).getIdDirectory(  ) == nIdDirectory ) )
@@ -385,7 +387,8 @@ public class DirectoryRest
 
     /**
      * Delete a record
-     * @param strIdRecord the id record
+     * @param nIdRecord the id record
+     * @param request the HTTP request
      * @return the response
      */
     @DELETE
@@ -393,13 +396,14 @@ public class DirectoryRest
     @Consumes( MediaType.APPLICATION_FORM_URLENCODED )
     @Produces( MediaType.TEXT_HTML )
     public String doDeleteRecord( @PathParam( DirectoryRestConstants.PARAMETER_ID_DIRECTORY_RECORD )
-    String strIdRecord )
+    int nIdRecord, @Context
+    HttpServletRequest request )
     {
         String strResponse = StringUtils.EMPTY;
 
         try
         {
-            strResponse = _directoryRestService.deleteRecord( strIdRecord );
+            strResponse = _directoryRestService.deleteRecord( nIdRecord, request );
         }
         catch ( Exception e )
         {

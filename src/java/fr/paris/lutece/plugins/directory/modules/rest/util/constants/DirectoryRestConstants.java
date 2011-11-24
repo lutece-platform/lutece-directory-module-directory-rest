@@ -55,6 +55,7 @@ public final class DirectoryRestConstants
     // PARAMETERS
     public static final String PARAMETER_ID_DIRECTORY = "id_directory";
     public static final String PARAMETER_ID_DIRECTORY_RECORD = "id_directory_record";
+    public static final String PARAMETER_ID_ENTRY_FILTER = "id_entry_filter";
 
     // PROPERTIES
     public static final String PROPERTY_FIELD_WORKFLOW_PREFIX = "directory-rest.entry.workflow.";

@@ -36,9 +36,12 @@ package fr.paris.lutece.plugins.directory.modules.rest;
 import fr.paris.lutece.plugins.directory.modules.rest.service.DirectoryRestService;
 import fr.paris.lutece.plugins.directory.modules.rest.service.formatters.RecordFormatterXml;
 import fr.paris.lutece.test.LuteceTestCase;
+import fr.paris.lutece.test.MokeHttpServletRequest;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -54,13 +57,14 @@ public class RestServiceTest extends LuteceTestCase
     {
         System.out.println( "getResource" );
 
-        String strRessourceId = "1";
+        int nIdRessource = 1;
         String strFormat = "application/xml";
+        HttpServletRequest request = new MokeHttpServletRequest(  );
 
         //        RestService service = (RestService) SpringContextService.getPluginBean( "directory-rest" , "directoryRestService" );
         DirectoryRestService service = new DirectoryRestService(  );
         Map<String, Object> map = new HashMap<String, Object>(  );
         map.put( strFormat, new RecordFormatterXml(  ) );
-        service.getRecord( strRessourceId );
+        service.getRecord( nIdRessource, request );
     }
 }

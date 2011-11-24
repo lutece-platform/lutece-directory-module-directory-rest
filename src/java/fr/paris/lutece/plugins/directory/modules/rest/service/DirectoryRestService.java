@@ -68,6 +68,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -93,30 +94,36 @@ public class DirectoryRestService
 
     /**
      * Gets the record
-     * @param strRessourceId resource id
+     * @param nIdRecord resource id
+     * @param request the HTTP request
      * @return the record
      * @throws DirectoryRestException if occurs
      * @throws DirectoryErrorException if occurs
      */
-    public Record getRecord( String strRessourceId ) throws DirectoryRestException, DirectoryErrorException
+    public Record getRecord( int nIdRecord, HttpServletRequest request )
+        throws DirectoryRestException, DirectoryErrorException
     {
-        int nRecordId = Integer.parseInt( strRessourceId );
-        Record record = RecordHome.findByPrimaryKey( nRecordId, _pluginDirectory );
+        Record record = RecordHome.findByPrimaryKey( nIdRecord, _pluginDirectory );
 
-        EntryFilter filter = new EntryFilter(  );
-        filter.setIdDirectory( record.getDirectory(  ).getIdDirectory(  ) );
-        filter.setIsComment( EntryFilter.FILTER_FALSE );
-        filter.setIsEntryParentNull( EntryFilter.FILTER_TRUE );
+        List<Integer> listIdsEntry = getIdsEntry( record.getDirectory(  ).getIdDirectory(  ), request );
 
-        List<IEntry> listEntryFirstLevel = EntryHome.getEntryList( filter, _pluginDirectory );
-        List<Integer> listId = new ArrayList<Integer>(  );
+        return getRecord( nIdRecord, listIdsEntry );
+    }
 
-        for ( IEntry entry : listEntryFirstLevel )
-        {
-            listId.add( entry.getIdEntry(  ) );
-        }
+    /**
+     * Gets the record
+     * @param nIdRecord resource id
+     * @param listIdsEntry the list of ids entry
+     * @return the record
+     * @throws DirectoryRestException if occurs
+     * @throws DirectoryErrorException if occurs
+     */
+    public Record getRecord( int nIdRecord, List<Integer> listIdsEntry )
+        throws DirectoryRestException, DirectoryErrorException
+    {
+        Record record = RecordHome.findByPrimaryKey( nIdRecord, _pluginDirectory );
 
-        List<RecordField> listRecordField = RecordFieldHome.getRecordFieldSpecificList( listId, nRecordId,
+        List<RecordField> listRecordField = RecordFieldHome.getRecordFieldSpecificList( listIdsEntry, nIdRecord,
                 _pluginDirectory );
         record.setListRecordField( listRecordField );
 
@@ -154,6 +161,7 @@ public class DirectoryRestService
 
         List<Integer> listIdsRecord = null;
         List<Record> listRecords = null;
+        List<Integer> listIdsEntry = getIdsEntry( nIdDirectory, request );
 
         try
         {
@@ -169,7 +177,7 @@ public class DirectoryRestService
                 for ( int i = 0; ( i < nMaxNumber ) && ( i < listIdsRecord.size(  ) ); i++ )
                 {
                     int nIdRecord = listIdsRecord.get( i );
-                    Record record = getRecord( Integer.toString( nIdRecord ) );
+                    Record record = getRecord( nIdRecord, listIdsEntry );
                     listRecords.add( record );
                 }
             }
@@ -183,47 +191,117 @@ public class DirectoryRestService
     }
 
     /**
-     * Return all entry associate to the directory
-     * <br />
-     * <b>WARNING : </b>This method does not check the authorization
-     * to view the entry (ie workgroup).
-     * @param nIdDirectory the id of the directory
-     * @return list of entries
+     * Get the list of entries from the record
+     * @param record the record
+     * @return a list of {@link IEntry}
      */
-    public List<IEntry> getEntries( int nIdDirectory )
+    public List<IEntry> getEntries( Record record )
     {
-        IEntry entryFistLevel;
+        List<IEntry> listEntries = new ArrayList<IEntry>(  );
+
+        if ( record.getListRecordField(  ) != null )
+        {
+            Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+            for ( RecordField recordField : record.getListRecordField(  ) )
+            {
+                if ( recordField.getEntry(  ) != null )
+                {
+                    int nIdEntry = recordField.getEntry(  ).getIdEntry(  );
+                    IEntry entry = EntryHome.findByPrimaryKey( nIdEntry, pluginDirectory );
+
+                    if ( ( entry != null ) && !listEntries.contains( entry ) )
+                    {
+                        listEntries.add( entry );
+                    }
+                }
+            }
+        }
+
+        return listEntries;
+    }
+
+    /**
+     * Get the ids entry from the parameters of the request.
+     * <br />
+     * If there is no ids entry in the parameter, then get all entries.
+     * @param nIdDirectory the id directory
+     * @param request the HTTP request
+     * @return the list of id entry
+     */
+    public List<Integer> getIdsEntry( int nIdDirectory, HttpServletRequest request )
+    {
+        List<Integer> listIdsEntry = new ArrayList<Integer>(  );
+        String[] strIdsEntry = request.getParameterValues( DirectoryRestConstants.PARAMETER_ID_ENTRY_FILTER );
+
+        if ( strIdsEntry != null )
+        {
+            Plugin pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+
+            for ( String strIdEntry : strIdsEntry )
+            {
+                if ( StringUtils.isNotBlank( strIdEntry ) && StringUtils.isNumeric( strIdEntry ) )
+                {
+                    // Check if the entry in the parameter is indeed from the directory
+                    int nIdEntry = Integer.parseInt( strIdEntry );
+                    IEntry entry = EntryHome.findByPrimaryKey( nIdEntry, pluginDirectory );
+
+                    if ( ( entry != null ) && ( entry.getDirectory(  ) != null ) &&
+                            ( entry.getDirectory(  ).getIdDirectory(  ) == nIdDirectory ) )
+                    {
+                        listIdsEntry.add( nIdEntry );
+                    }
+                }
+            }
+        }
+        else
+        {
+            listIdsEntry = getIdsEntry( nIdDirectory );
+        }
+
+        return listIdsEntry;
+    }
+
+    /**
+     * Get all entries
+     * @param nIdDirectory the id directory
+     * @return the list of id entry
+     */
+    public List<Integer> getIdsEntry( int nIdDirectory )
+    {
+        List<Integer> listIdsEntry = new ArrayList<Integer>(  );
+
         EntryFilter filter = new EntryFilter(  );
         filter.setIdDirectory( nIdDirectory );
+        filter.setIsComment( EntryFilter.FILTER_FALSE );
         filter.setIsEntryParentNull( EntryFilter.FILTER_TRUE );
 
         List<IEntry> listEntryFirstLevel = EntryHome.getEntryList( filter, _pluginDirectory );
-        List<IEntry> listEntryImbricate = new ArrayList<IEntry>(  );
 
         for ( IEntry entry : listEntryFirstLevel )
         {
-            entryFistLevel = EntryHome.findByPrimaryKey( entry.getIdEntry(  ), _pluginDirectory );
+            IEntry entryFistLevel = EntryHome.findByPrimaryKey( entry.getIdEntry(  ), _pluginDirectory );
 
-            if ( entryFistLevel.getEntryType(  ).getGroup(  ) )
+            if ( ( entryFistLevel != null ) && entryFistLevel.getEntryType(  ).getGroup(  ) )
             {
                 filter = new EntryFilter(  );
                 filter.setIdEntryParent( entryFistLevel.getIdEntry(  ) );
 
-                List<IEntry> listEntryChildren = new ArrayList<IEntry>(  );
-
                 for ( IEntry entryChildren : EntryHome.getEntryList( filter, _pluginDirectory ) )
                 {
                     IEntry entryTmp = EntryHome.findByPrimaryKey( entryChildren.getIdEntry(  ), _pluginDirectory );
-                    listEntryChildren.add( entryTmp );
-                }
 
-                entryFistLevel.setChildren( listEntryChildren );
+                    if ( entryTmp != null )
+                    {
+                        listIdsEntry.add( entryTmp.getIdEntry(  ) );
+                    }
+                }
             }
 
-            listEntryImbricate.add( entryFistLevel );
+            listIdsEntry.add( entry.getIdEntry(  ) );
         }
 
-        return listEntryImbricate;
+        return listIdsEntry;
     }
 
     /**
@@ -247,6 +325,35 @@ public class DirectoryRestService
         Plugin plugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
 
         return DirectoryHome.getDirectoryList( new DirectoryFilter(  ), plugin );
+    }
+
+    /**
+     * Get the map of id entry - List de Record Field
+     * @param record the record
+     * @return the map
+     */
+    public Map<String, List<RecordField>> getMapIdEntryListRecordField( Record record )
+    {
+        Map<String, List<RecordField>> map = new HashMap<String, List<RecordField>>(  );
+
+        if ( ( record.getListRecordField(  ) != null ) && !record.getListRecordField(  ).isEmpty(  ) )
+        {
+            for ( RecordField recordField : record.getListRecordField(  ) )
+            {
+                int nIdEntry = recordField.getEntry(  ).getIdEntry(  );
+                List<RecordField> listRecordFields = map.get( Integer.toString( nIdEntry ) );
+
+                if ( listRecordFields == null )
+                {
+                    listRecordFields = new ArrayList<RecordField>(  );
+                }
+
+                listRecordFields.add( recordField );
+                map.put( Integer.toString( nIdEntry ), listRecordFields );
+            }
+        }
+
+        return map;
     }
 
     // ACTION
@@ -297,17 +404,19 @@ public class DirectoryRestService
     public Record insertOrCompleteRecord( HttpServletRequest request )
         throws DirectoryErrorException, DirectoryRestException
     {
-        String strRecordId = request.getParameter( PARAMETER_RECORD_ID );
+        String strIdRecord = request.getParameter( PARAMETER_RECORD_ID );
 
-        if ( StringUtils.isNotBlank( strRecordId ) )
+        if ( StringUtils.isNotBlank( strIdRecord ) && StringUtils.isNumeric( strIdRecord ) )
         {
             // strRecordId ==> update
             if ( AppLogService.isDebugEnabled(  ) )
             {
-                AppLogService.debug( "Record id found, updating record " + strRecordId );
+                AppLogService.debug( "Record id found, updating record " + strIdRecord );
             }
 
-            return completeRecord( strRecordId, request );
+            int nIdRecord = Integer.parseInt( strIdRecord );
+
+            return completeRecord( nIdRecord, request );
         }
 
         // strRecordId == null ==> create, strDirectoryId should not be null
@@ -323,29 +432,23 @@ public class DirectoryRestService
 
     /**
      * delete the record
-     * @param strRecordId the id record
+     * @param nIdRecord the id record
+     * @param request the HTTP request
      * @return the record deleted
      * @throws DirectoryErrorException if occurs
      * @throws DirectoryRestException if occurs
      */
-    public String deleteRecord( String strRecordId ) throws DirectoryErrorException, DirectoryRestException
+    public String deleteRecord( int nIdRecord, HttpServletRequest request )
+        throws DirectoryErrorException, DirectoryRestException
     {
-        if ( StringUtils.isNotBlank( strRecordId ) )
+        if ( AppLogService.isDebugEnabled(  ) )
         {
-            if ( AppLogService.isDebugEnabled(  ) )
-            {
-                AppLogService.debug( "Record id found, deleting record " + strRecordId );
-            }
+            AppLogService.debug( "Record id found, deleting record " + nIdRecord );
+        }
 
-            Record record = getRecord( strRecordId );
-            RecordHome.remove( record.getIdRecord(  ), _pluginDirectory );
-            WorkflowService.getInstance(  )
-                           .doRemoveWorkFlowResource( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE );
-        }
-        else
-        {
-            throw new DirectoryRestException( "error deleting record where id = " + strRecordId );
-        }
+        Record record = getRecord( nIdRecord, request );
+        RecordHome.remove( record.getIdRecord(  ), _pluginDirectory );
+        WorkflowService.getInstance(  ).doRemoveWorkFlowResource( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE );
 
         return "record deleted";
     }
@@ -353,16 +456,16 @@ public class DirectoryRestService
     /**
      * Gets record fields values from the request and complete the record for asynchronous record creation.
      * This method is <b>NOT</b> a modification of the record.
-     * @param strRecordId the id of the record to complete
+     * @param nIdRecord the id of the record to complete
      * @param request the request
      * @return the stored record
      * @throws DirectoryErrorException if a directory exception occurs
      * @throws DirectoryRestException if a rest exception occurs
      */
-    public Record completeRecord( String strRecordId, ServletRequest request )
+    public Record completeRecord( int nIdRecord, ServletRequest request )
         throws DirectoryErrorException, DirectoryRestException
     {
-        Record record = getRecord( strRecordId );
+        Record record = getRecord( nIdRecord, (HttpServletRequest) request );
 
         List<RecordField> listRecordFields = getRecordFields( (HttpServletRequest) request, record );
 
@@ -433,29 +536,38 @@ public class DirectoryRestService
     public Record updateRecord( HttpServletRequest request )
         throws DirectoryRestException, DirectoryErrorException
     {
-        String strRecordId = request.getParameter( PARAMETER_RECORD_ID );
+        String strIdRecord = request.getParameter( PARAMETER_RECORD_ID );
 
-        Record record = getRecord( strRecordId );
-
-        List<RecordField> listRecordFields = getRecordFields( request, record );
-
-        for ( RecordField recordField : listRecordFields )
+        if ( StringUtils.isNotBlank( strIdRecord ) && StringUtils.isNumeric( strIdRecord ) )
         {
-            int idEntry = recordField.getEntry(  ).getIdEntry(  );
-            String strEntryId = request.getParameter( Integer.toString( idEntry ) );
+            int nIdRecord = Integer.parseInt( strIdRecord );
+            Record record = getRecord( nIdRecord, request );
 
-            if ( strEntryId != null )
+            if ( record != null )
             {
-                RecordFieldFilter filter = new RecordFieldFilter(  );
-                filter.setIdEntry( idEntry );
-                filter.setIdRecord( record.getIdRecord(  ) );
-                RecordFieldHome.removeByFilter( filter, _pluginDirectory );
-                recordField.setRecord( record );
-                RecordFieldHome.create( recordField, _pluginDirectory );
+                List<RecordField> listRecordFields = getRecordFields( request, record );
+
+                for ( RecordField recordField : listRecordFields )
+                {
+                    int idEntry = recordField.getEntry(  ).getIdEntry(  );
+                    String strEntryId = request.getParameter( Integer.toString( idEntry ) );
+
+                    if ( strEntryId != null )
+                    {
+                        RecordFieldFilter filter = new RecordFieldFilter(  );
+                        filter.setIdEntry( idEntry );
+                        filter.setIdRecord( record.getIdRecord(  ) );
+                        RecordFieldHome.removeByFilter( filter, _pluginDirectory );
+                        recordField.setRecord( record );
+                        RecordFieldHome.create( recordField, _pluginDirectory );
+                    }
+                }
+
+                return record;
             }
         }
 
-        return getRecord( strRecordId );
+        return null;
     }
 
     /**
