@@ -50,7 +50,6 @@ import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
 import fr.paris.lutece.plugins.directory.utils.DirectoryErrorException;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.plugins.directory.web.action.DirectoryAdminSearchFields;
-import fr.paris.lutece.portal.service.admin.AccessDeniedException;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
 import fr.paris.lutece.portal.service.util.AppLogService;
@@ -159,32 +158,24 @@ public class DirectoryRestService
 
         boolean bWorkflowServiceEnable = WorkflowService.getInstance(  ).isAvailable(  );
 
-        List<Integer> listIdsRecord = null;
         List<Record> listRecords = null;
         List<Integer> listIdsEntry = getIdsEntry( nIdDirectory, request );
 
-        try
-        {
-            listIdsRecord = DirectoryUtils.getListResults( request, directory, bWorkflowServiceEnable, true,
-                    searchFields, null, request.getLocale(  ) );
-            listRecords = new ArrayList<Record>(  );
+        List<Integer> listIdsRecord = DirectoryUtils.getListResults( request, directory, bWorkflowServiceEnable, true,
+                searchFields, null, request.getLocale(  ) );
+        listRecords = new ArrayList<Record>(  );
 
-            if ( listIdsRecord != null )
+        if ( listIdsRecord != null )
+        {
+            int nMaxNumber = AppPropertiesService.getPropertyInt( DirectoryRestConstants.PROPERTY_MAX_NUMBER_RECORDS,
+                    100 );
+
+            for ( int i = 0; ( i < nMaxNumber ) && ( i < listIdsRecord.size(  ) ); i++ )
             {
-                int nMaxNumber = AppPropertiesService.getPropertyInt( DirectoryRestConstants.PROPERTY_MAX_NUMBER_RECORDS,
-                        100 );
-
-                for ( int i = 0; ( i < nMaxNumber ) && ( i < listIdsRecord.size(  ) ); i++ )
-                {
-                    int nIdRecord = listIdsRecord.get( i );
-                    Record record = getRecord( nIdRecord, listIdsEntry );
-                    listRecords.add( record );
-                }
+                int nIdRecord = listIdsRecord.get( i );
+                Record record = getRecord( nIdRecord, listIdsEntry );
+                listRecords.add( record );
             }
-        }
-        catch ( AccessDeniedException e )
-        {
-            AppLogService.error( e );
         }
 
         return listRecords;
