@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
     <name>directory-rest</name>
     <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
-    <version>1.6</version>
+    <version>2.0.0</version>
     <description>module.directory.rest.module.description</description>
     <documentation/>
     <installation/>
@@ -29,7 +29,7 @@
 
            <init-param>
                <param-name>elementsSignature</param-name>
-               <param-value></param-value>
+               <param-value/>
            </init-param>
 
            <init-param>
