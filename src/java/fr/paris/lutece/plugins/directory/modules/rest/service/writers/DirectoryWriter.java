@@ -61,6 +61,7 @@ public class DirectoryWriter extends AbstractWriter<Directory>
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isWriteable( Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType )
     {
         // Ensure that we're handling only List<Directory> objects.

@@ -35,7 +35,7 @@ package fr.paris.lutece.plugins.directory.modules.rest.rs;
 
 import fr.paris.lutece.plugins.directory.business.Directory;
 import fr.paris.lutece.plugins.directory.business.Record;
-import fr.paris.lutece.plugins.directory.modules.rest.service.DirectoryRestService;
+import fr.paris.lutece.plugins.directory.modules.rest.service.IDirectoryRestService;
 import fr.paris.lutece.plugins.directory.modules.rest.service.http.DirectoryRestHttpServletRequest;
 import fr.paris.lutece.plugins.directory.modules.rest.util.constants.DirectoryRestConstants;
 import fr.paris.lutece.plugins.directory.service.DirectoryPlugin;
@@ -76,7 +76,7 @@ import javax.ws.rs.core.MultivaluedMap;
 @Path( RestConstants.BASE_PATH + DirectoryPlugin.PLUGIN_NAME )
 public class DirectoryRest
 {
-    private DirectoryRestService _directoryRestService;
+    private IDirectoryRestService _directoryRestService;
 
     // SET
 
@@ -84,7 +84,7 @@ public class DirectoryRest
      * Set the directory rest service
      * @param directoryRestService the directory rest service
      */
-    public void setDirectoryRestService( DirectoryRestService directoryRestService )
+    public void setDirectoryRestService( IDirectoryRestService directoryRestService )
     {
         _directoryRestService = directoryRestService;
     }

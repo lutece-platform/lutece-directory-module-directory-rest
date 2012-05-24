@@ -7,12 +7,8 @@
 	<bean id="directory-rest.directoryRestService" class="fr.paris.lutece.plugins.directory.modules.rest.service.DirectoryRestService" />
 	
 	<!-- Formatters -->
-	<bean id="directory-rest.recordFormatterXml" class="fr.paris.lutece.plugins.directory.modules.rest.service.formatters.RecordFormatterXml">
-		<property name="directoryRestService" ref="directory-rest.directoryRestService" />
-	</bean>
-	<bean id="directory-rest.recordFormatterJson" class="fr.paris.lutece.plugins.directory.modules.rest.service.formatters.RecordFormatterJson">
-		<property name="directoryRestService" ref="directory-rest.directoryRestService" />
-	</bean>
+	<bean id="directory-rest.recordFormatterXml" class="fr.paris.lutece.plugins.directory.modules.rest.service.formatters.RecordFormatterXml" />
+	<bean id="directory-rest.recordFormatterJson" class="fr.paris.lutece.plugins.directory.modules.rest.service.formatters.RecordFormatterJson" />
 	<bean id="directory-rest.directoryFormatterXml" class="fr.paris.lutece.plugins.directory.modules.rest.service.formatters.DirectoryFormatterXml" />
 	<bean id="directory-rest.directoryFormatterJson" class="fr.paris.lutece.plugins.directory.modules.rest.service.formatters.DirectoryFormatterJson" />
 

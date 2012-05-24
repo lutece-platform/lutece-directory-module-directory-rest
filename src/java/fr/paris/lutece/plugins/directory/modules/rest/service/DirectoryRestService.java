@@ -78,7 +78,7 @@ import javax.servlet.http.HttpServletRequest;
  * DirectoryRestService
  *
  */
-public class DirectoryRestService
+public class DirectoryRestService implements IDirectoryRestService
 {
     private static final String PARAMETER_DIRECTORY_ID = "directoryId";
     private static final String PARAMETER_RECORD_ID = "recordId";
@@ -86,23 +86,16 @@ public class DirectoryRestService
     /** use this parameter to avoid workflow usage */
     private static final String PARAMETER_NO_WORKFLOW = "noWorkflow";
 
-    /** LAUNCH WORKFLOW ACTION IF THE GIVEN ENTRY IS SET */
-    private static final Plugin _pluginDirectory = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
-
     // GET
 
     /**
-     * Gets the record
-     * @param nIdRecord resource id
-     * @param request the HTTP request
-     * @return the record
-     * @throws DirectoryRestException if occurs
-     * @throws DirectoryErrorException if occurs
+     * {@inheritDoc}
      */
+    @Override
     public Record getRecord( int nIdRecord, HttpServletRequest request )
         throws DirectoryRestException, DirectoryErrorException
     {
-        Record record = RecordHome.findByPrimaryKey( nIdRecord, _pluginDirectory );
+        Record record = RecordHome.findByPrimaryKey( nIdRecord, getPlugin(  ) );
 
         List<Integer> listIdsEntry = getIdsEntry( record.getDirectory(  ).getIdDirectory(  ), request );
 
@@ -110,33 +103,25 @@ public class DirectoryRestService
     }
 
     /**
-     * Gets the record
-     * @param nIdRecord resource id
-     * @param listIdsEntry the list of ids entry
-     * @return the record
-     * @throws DirectoryRestException if occurs
-     * @throws DirectoryErrorException if occurs
+     * {@inheritDoc}
      */
+    @Override
     public Record getRecord( int nIdRecord, List<Integer> listIdsEntry )
         throws DirectoryRestException, DirectoryErrorException
     {
-        Record record = RecordHome.findByPrimaryKey( nIdRecord, _pluginDirectory );
+        Record record = RecordHome.findByPrimaryKey( nIdRecord, getPlugin(  ) );
 
         List<RecordField> listRecordField = RecordFieldHome.getRecordFieldSpecificList( listIdsEntry, nIdRecord,
-                _pluginDirectory );
+                getPlugin(  ) );
         record.setListRecordField( listRecordField );
 
         return record;
     }
 
     /**
-     * Finds the list
-     * @param nIdDirectory the directory id
-     * @param request the HTTP request
-     * @return the record list
-     * @throws DirectoryRestException if occurs
-     * @throws DirectoryErrorException if occurs
+     * {@inheritDoc}
      */
+    @Override
     public List<Record> getRecordsList( int nIdDirectory, HttpServletRequest request )
         throws DirectoryRestException, DirectoryErrorException
     {
@@ -182,10 +167,9 @@ public class DirectoryRestService
     }
 
     /**
-     * Get the list of entries from the record
-     * @param record the record
-     * @return a list of {@link IEntry}
+     * {@inheritDoc}
      */
+    @Override
     public List<IEntry> getEntries( Record record )
     {
         List<IEntry> listEntries = new ArrayList<IEntry>(  );
@@ -213,13 +197,9 @@ public class DirectoryRestService
     }
 
     /**
-     * Get the ids entry from the parameters of the request.
-     * <br />
-     * If there is no ids entry in the parameter, then get all entries.
-     * @param nIdDirectory the id directory
-     * @param request the HTTP request
-     * @return the list of id entry
+     * {@inheritDoc}
      */
+    @Override
     public List<Integer> getIdsEntry( int nIdDirectory, HttpServletRequest request )
     {
         List<Integer> listIdsEntry = new ArrayList<Integer>(  );
@@ -254,10 +234,9 @@ public class DirectoryRestService
     }
 
     /**
-     * Get all entries
-     * @param nIdDirectory the id directory
-     * @return the list of id entry
+     * {@inheritDoc}
      */
+    @Override
     public List<Integer> getIdsEntry( int nIdDirectory )
     {
         List<Integer> listIdsEntry = new ArrayList<Integer>(  );
@@ -267,20 +246,20 @@ public class DirectoryRestService
         filter.setIsComment( EntryFilter.FILTER_FALSE );
         filter.setIsEntryParentNull( EntryFilter.FILTER_TRUE );
 
-        List<IEntry> listEntryFirstLevel = EntryHome.getEntryList( filter, _pluginDirectory );
+        List<IEntry> listEntryFirstLevel = EntryHome.getEntryList( filter, getPlugin(  ) );
 
         for ( IEntry entry : listEntryFirstLevel )
         {
-            IEntry entryFistLevel = EntryHome.findByPrimaryKey( entry.getIdEntry(  ), _pluginDirectory );
+            IEntry entryFistLevel = EntryHome.findByPrimaryKey( entry.getIdEntry(  ), getPlugin(  ) );
 
             if ( ( entryFistLevel != null ) && entryFistLevel.getEntryType(  ).getGroup(  ) )
             {
                 filter = new EntryFilter(  );
                 filter.setIdEntryParent( entryFistLevel.getIdEntry(  ) );
 
-                for ( IEntry entryChildren : EntryHome.getEntryList( filter, _pluginDirectory ) )
+                for ( IEntry entryChildren : EntryHome.getEntryList( filter, getPlugin(  ) ) )
                 {
-                    IEntry entryTmp = EntryHome.findByPrimaryKey( entryChildren.getIdEntry(  ), _pluginDirectory );
+                    IEntry entryTmp = EntryHome.findByPrimaryKey( entryChildren.getIdEntry(  ), getPlugin(  ) );
 
                     if ( entryTmp != null )
                     {
@@ -296,10 +275,9 @@ public class DirectoryRestService
     }
 
     /**
-     * Get the directory given the id directory
-     * @param nIdDirectory the id directory
-     * @return the directory
+     * {@inheritDoc}
      */
+    @Override
     public Directory getDirectory( int nIdDirectory )
     {
         Plugin plugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
@@ -308,9 +286,9 @@ public class DirectoryRestService
     }
 
     /**
-     * Get the list of directories
-     * @return the list of directories
+     * {@inheritDoc}
      */
+    @Override
     public List<Directory> getDirectoriesList(  )
     {
         Plugin plugin = PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
@@ -319,10 +297,9 @@ public class DirectoryRestService
     }
 
     /**
-     * Get the map of id entry - List de Record Field
-     * @param record the record
-     * @return the map
+     * {@inheritDoc}
      */
+    @Override
     public Map<String, List<RecordField>> getMapIdEntryListRecordField( Record record )
     {
         Map<String, List<RecordField>> map = new HashMap<String, List<RecordField>>(  );
@@ -350,17 +327,14 @@ public class DirectoryRestService
     // ACTION
 
     /**
-     * Add a record in a directory with the parameters given if they match
-     * @param strIdDirectory the directory id
-     * @param request the HTTP request
-     * @return the record
-     * @throws DirectoryErrorException exception if there is an error
+     * {@inheritDoc}
      */
+    @Override
     public Record addToDirectory( String strIdDirectory, ServletRequest request )
         throws DirectoryErrorException
     {
         int nDirectoryId = Integer.parseInt( strIdDirectory );
-        Directory directory = DirectoryHome.findByPrimaryKey( nDirectoryId, _pluginDirectory );
+        Directory directory = DirectoryHome.findByPrimaryKey( nDirectoryId, getPlugin(  ) );
 
         Record record = new Record(  );
         record.setDirectory( directory );
@@ -372,7 +346,7 @@ public class DirectoryRestService
         record.setListRecordField( listRecordFields );
 
         //save the Record and the RecordFiels
-        record.setIdRecord( RecordHome.create( record, _pluginDirectory ) );
+        record.setIdRecord( RecordHome.create( record, getPlugin(  ) ) );
 
         // do not use the workflow if creation is partial
         String strNoWorkflowInit = request.getParameter( PARAMETER_NO_WORKFLOW );
@@ -386,12 +360,9 @@ public class DirectoryRestService
     }
 
     /**
-     * Creates or updates the record
-     * @param request the request
-     * @return the record created or updated
-     * @throws DirectoryErrorException if occurs
-     * @throws DirectoryRestException if occurs
+     * {@inheritDoc}
      */
+    @Override
     public Record insertOrCompleteRecord( HttpServletRequest request )
         throws DirectoryErrorException, DirectoryRestException
     {
@@ -422,13 +393,9 @@ public class DirectoryRestService
     }
 
     /**
-     * delete the record
-     * @param nIdRecord the id record
-     * @param request the HTTP request
-     * @return the record deleted
-     * @throws DirectoryErrorException if occurs
-     * @throws DirectoryRestException if occurs
+     * {@inheritDoc}
      */
+    @Override
     public String deleteRecord( int nIdRecord, HttpServletRequest request )
         throws DirectoryErrorException, DirectoryRestException
     {
@@ -438,21 +405,16 @@ public class DirectoryRestService
         }
 
         Record record = getRecord( nIdRecord, request );
-        RecordHome.remove( record.getIdRecord(  ), _pluginDirectory );
+        RecordHome.remove( record.getIdRecord(  ), getPlugin(  ) );
         WorkflowService.getInstance(  ).doRemoveWorkFlowResource( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE );
 
         return "record deleted";
     }
 
     /**
-     * Gets record fields values from the request and complete the record for asynchronous record creation.
-     * This method is <b>NOT</b> a modification of the record.
-     * @param nIdRecord the id of the record to complete
-     * @param request the request
-     * @return the stored record
-     * @throws DirectoryErrorException if a directory exception occurs
-     * @throws DirectoryRestException if a rest exception occurs
+     * {@inheritDoc}
      */
+    @Override
     public Record completeRecord( int nIdRecord, ServletRequest request )
         throws DirectoryErrorException, DirectoryRestException
     {
@@ -487,7 +449,7 @@ public class DirectoryRestService
                     // get old field data
                     oldRecordField.getFile(  )
                                   .setPhysicalFile( PhysicalFileHome.findByPrimaryKey( 
-                            oldRecordField.getFile(  ).getPhysicalFile(  ).getIdPhysicalFile(  ), _pluginDirectory ) );
+                            oldRecordField.getFile(  ).getPhysicalFile(  ).getIdPhysicalFile(  ), getPlugin(  ) ) );
                     listRecordFields.add( oldRecordField );
                 }
 
@@ -502,7 +464,7 @@ public class DirectoryRestService
 
         record.setListRecordField( listRecordFields );
 
-        RecordHome.updateWidthRecordField( record, _pluginDirectory );
+        RecordHome.updateWidthRecordField( record, getPlugin(  ) );
 
         // do not use the workflow if update is partial
         String strNoWorkflowInit = request.getParameter( PARAMETER_NO_WORKFLOW );
@@ -511,19 +473,16 @@ public class DirectoryRestService
                 isEntrySet( listRecordFields, record.getDirectory(  ).getIdDirectory(  ) ) )
         {
             doWorkflowActions( record,
-                DirectoryHome.findByPrimaryKey( record.getDirectory(  ).getIdDirectory(  ), _pluginDirectory ) );
+                DirectoryHome.findByPrimaryKey( record.getDirectory(  ).getIdDirectory(  ), getPlugin(  ) ) );
         }
 
         return record;
     }
 
     /**
-     * Update record
-     * @param request the HTTP request
-     * @return the record
-     * @throws DirectoryErrorException exception if there is an error
-     * @throws DirectoryRestException exception if there is an error
+     * {@inheritDoc}
      */
+    @Override
     public Record updateRecord( HttpServletRequest request )
         throws DirectoryRestException, DirectoryErrorException
     {
@@ -548,9 +507,9 @@ public class DirectoryRestService
                         RecordFieldFilter filter = new RecordFieldFilter(  );
                         filter.setIdEntry( idEntry );
                         filter.setIdRecord( record.getIdRecord(  ) );
-                        RecordFieldHome.removeByFilter( filter, _pluginDirectory );
+                        RecordFieldHome.removeByFilter( filter, getPlugin(  ) );
                         recordField.setRecord( record );
-                        RecordFieldHome.create( recordField, _pluginDirectory );
+                        RecordFieldHome.create( recordField, getPlugin(  ) );
                     }
                 }
 
@@ -562,12 +521,9 @@ public class DirectoryRestService
     }
 
     /**
-     * Convert the HTTP request to a {@link MultipartHttpServletRequest}
-     * @param request the HTTP request
-     * @return a {@link MultipartHttpServletRequest}, null if the content is not multipart
-     * @throws SizeLimitExceededException exception if the file size is too big
-     * @throws FileUploadException exception if an unknown error has occurred
+     * {@inheritDoc}
      */
+    @Override
     public MultipartHttpServletRequest convertRequest( HttpServletRequest request )
         throws SizeLimitExceededException, FileUploadException
     {
@@ -632,7 +588,7 @@ public class DirectoryRestService
         {
             WorkflowService.getInstance(  )
                            .getState( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
-                directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ), null );
+                directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ) );
             WorkflowService.getInstance(  )
                            .executeActionAutomatic( record.getIdRecord(  ), Record.WORKFLOW_RESOURCE_TYPE,
                 directory.getIdWorkflow(  ), Integer.valueOf( directory.getIdDirectory(  ) ) );
@@ -655,13 +611,13 @@ public class DirectoryRestService
         filter.setIsComment( EntryFilter.FILTER_FALSE );
         filter.setIsEntryParentNull( EntryFilter.FILTER_TRUE );
 
-        List<IEntry> listEntryFirstLevel = EntryHome.getEntryList( filter, _pluginDirectory );
+        List<IEntry> listEntryFirstLevel = EntryHome.getEntryList( filter, getPlugin(  ) );
 
         for ( IEntry entry : listEntryFirstLevel )
         {
             // no directory error testing (i.e. mandatory fields can be blanks)
             DirectoryUtils.getDirectoryRecordFieldData( record, request, entry.getIdEntry(  ), false, listRecordFields,
-                _pluginDirectory, request.getLocale(  ) );
+                getPlugin(  ), request.getLocale(  ) );
         }
 
         return listRecordFields;
@@ -750,5 +706,14 @@ public class DirectoryRestService
         }
 
         return false;
+    }
+
+    /**
+     * Get the plugin
+     * @return the plugin
+     */
+    private Plugin getPlugin(  )
+    {
+        return PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
     }
 }

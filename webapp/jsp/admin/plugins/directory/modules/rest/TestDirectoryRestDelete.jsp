@@ -5,7 +5,7 @@
 
 <html>
     <head>
-        <title>CRM - REST webservices test delete page</title>
+        <title>Directory - REST webservices test delete page</title>
         <base href="<%= AppPathService.getBaseUrl( request ) %>" />
 	</head>
 	<body>

@@ -38,7 +38,7 @@ import fr.paris.lutece.plugins.directory.business.Field;
 import fr.paris.lutece.plugins.directory.business.IEntry;
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.business.RecordField;
-import fr.paris.lutece.plugins.directory.modules.rest.service.DirectoryRestService;
+import fr.paris.lutece.plugins.directory.modules.rest.service.IDirectoryRestService;
 import fr.paris.lutece.plugins.directory.modules.rest.util.constants.DirectoryRestConstants;
 import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.plugins.rest.business.resourceinfo.IResourceInfo;
@@ -57,6 +57,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 
 /**
@@ -114,21 +116,14 @@ import java.util.Map;
  */
 public class RecordFormatterJson implements IFormatter<Record>
 {
-    private DirectoryRestService _directoryRestService;
+    @Inject
+    private IDirectoryRestService _directoryRestService;
     private Locale _locale = I18nService.getDefaultLocale(  );
-
-    /**
-     * Set the directory rest service
-     * @param directoryRestService the directory rest service
-     */
-    public void setDirectoryRestService( DirectoryRestService directoryRestService )
-    {
-        _directoryRestService = directoryRestService;
-    }
 
     /**
      * {@inheritDoc }
      */
+    @Override
     public String formatError( String strCode, String strMessage )
     {
         return JSONUtil.formatError( strMessage, DirectoryUtils.convertStringToInt( strCode ) );
@@ -137,6 +132,7 @@ public class RecordFormatterJson implements IFormatter<Record>
     /**
      * {@inheritDoc }
      */
+    @Override
     public String format( Record record )
     {
         JSONObject jsonObject = new JSONObject(  );
@@ -197,6 +193,7 @@ public class RecordFormatterJson implements IFormatter<Record>
     /**
      * {@inheritDoc}
      */
+    @Override
     public String format( List<Record> listRecords )
     {
         JSONArray jsonArray = new JSONArray(  );

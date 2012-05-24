@@ -77,6 +77,7 @@ public class DirectoryFormatterXml implements IFormatter<Directory>
     /**
     * {@inheritDoc}
     */
+    @Override
     public String formatError( String strCode, String strMessage )
     {
         return XMLUtil.formatError( strMessage, DirectoryUtils.convertStringToInt( strCode ) );
@@ -85,6 +86,7 @@ public class DirectoryFormatterXml implements IFormatter<Directory>
     /**
      * {@inheritDoc }
      */
+    @Override
     public String format( Directory directory )
     {
         StringBuffer sbXml = new StringBuffer( AppPropertiesService.getProperty( XmlUtil.PROPERTIES_XML_HEADER ) );
@@ -101,6 +103,7 @@ public class DirectoryFormatterXml implements IFormatter<Directory>
     /**
      * {@inheritDoc}
      */
+    @Override
     public String format( List<Directory> listDirectories )
     {
         StringBuffer sbXml = new StringBuffer( AppPropertiesService.getProperty( XmlUtil.PROPERTIES_XML_HEADER ) );
