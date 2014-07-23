@@ -52,11 +52,13 @@ import fr.paris.lutece.plugins.directory.utils.DirectoryUtils;
 import fr.paris.lutece.plugins.directory.web.action.DirectoryAdminSearchFields;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
+import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.portal.service.util.AppLogService;
 import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.service.workflow.WorkflowService;
 import fr.paris.lutece.portal.web.upload.MultipartHttpServletRequest;
 import fr.paris.lutece.util.http.MultipartUtil;
+import fr.paris.lutece.util.sql.TransactionManager;
 
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
@@ -345,15 +347,27 @@ public class DirectoryRestService implements IDirectoryRestService
 
         record.setListRecordField( listRecordFields );
 
-        //save the Record and the RecordFiels
-        record.setIdRecord( RecordHome.create( record, getPlugin(  ) ) );
-
         // do not use the workflow if creation is partial
         String strNoWorkflowInit = request.getParameter( PARAMETER_NO_WORKFLOW );
 
-        if ( StringUtils.isBlank( strNoWorkflowInit ) && isEntrySet( listRecordFields, nDirectoryId ) )
+        TransactionManager.beginTransaction( getPlugin(  ) );
+
+        try
         {
-            doWorkflowActions( record, directory );
+            //save the Record and the RecordFiels
+            record.setIdRecord( RecordHome.create( record, getPlugin(  ) ) );
+
+            if ( StringUtils.isBlank( strNoWorkflowInit ) && isEntrySet( listRecordFields, nDirectoryId ) )
+            {
+                doWorkflowActions( record, directory );
+            }
+
+            TransactionManager.commitTransaction( getPlugin(  ) );
+        }
+        catch ( Exception e )
+        {
+            TransactionManager.rollBack( getPlugin(  ) );
+            throw new AppException( e.getMessage(  ), e );
         }
 
         return record;
