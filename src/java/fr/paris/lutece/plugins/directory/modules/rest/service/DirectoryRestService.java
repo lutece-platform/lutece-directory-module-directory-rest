@@ -38,6 +38,8 @@ import fr.paris.lutece.plugins.directory.business.DirectoryFilter;
 import fr.paris.lutece.plugins.directory.business.DirectoryHome;
 import fr.paris.lutece.plugins.directory.business.EntryFilter;
 import fr.paris.lutece.plugins.directory.business.EntryHome;
+import fr.paris.lutece.plugins.directory.business.Field;
+import fr.paris.lutece.plugins.directory.business.FieldHome;
 import fr.paris.lutece.plugins.directory.business.IEntry;
 import fr.paris.lutece.plugins.directory.business.PhysicalFileHome;
 import fr.paris.lutece.plugins.directory.business.Record;
@@ -101,24 +103,10 @@ public class DirectoryRestService implements IDirectoryRestService
 
         List<Integer> listIdsEntry = getIdsEntry( record.getDirectory(  ).getIdDirectory(  ), request );
 
-        return getRecord( nIdRecord, listIdsEntry );
+        return getRecord( nIdRecord, listIdsEntry,getMapFieldEntryByListIdEntry(listIdsEntry) );
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Record getRecord( int nIdRecord, List<Integer> listIdsEntry )
-        throws DirectoryRestException, DirectoryErrorException
-    {
-        Record record = RecordHome.findByPrimaryKey( nIdRecord, getPlugin(  ) );
-
-        List<RecordField> listRecordField = RecordFieldHome.getRecordFieldSpecificList( listIdsEntry, nIdRecord,
-                getPlugin(  ) );
-        record.setListRecordField( listRecordField );
-
-        return record;
-    }
+    
 
     /**
      * {@inheritDoc}
@@ -150,7 +138,12 @@ public class DirectoryRestService implements IDirectoryRestService
 
         List<Integer> listIdsRecord = DirectoryUtils.getListResults( request, directory, bWorkflowServiceEnable, true,
                 searchFields, null, request.getLocale(  ) );
+        
+       
+        
         listRecords = new ArrayList<Record>(  );
+        
+        Map<Integer,Field> mapFieldEntry= getMapFieldEntryByListIdEntry(listIdsEntry);
 
         if ( listIdsRecord != null )
         {
@@ -160,7 +153,7 @@ public class DirectoryRestService implements IDirectoryRestService
             for ( int i = 0; ( i < nMaxNumber ) && ( i < listIdsRecord.size(  ) ); i++ )
             {
                 int nIdRecord = listIdsRecord.get( i );
-                Record record = getRecord( nIdRecord, listIdsEntry );
+                Record record = getRecord( nIdRecord, listIdsEntry,mapFieldEntry);
                 listRecords.add( record );
             }
         }
@@ -729,5 +722,49 @@ public class DirectoryRestService implements IDirectoryRestService
     private Plugin getPlugin(  )
     {
         return PluginService.getPlugin( DirectoryPlugin.PLUGIN_NAME );
+    }
+    /**
+     * Gets the record
+     * @param nIdRecord resource id
+     * @param listIdsEntry the list of ids entry
+     * @param mapFieldEntry the map of field entry
+     * @return the record
+     * @throws DirectoryRestException if occurs
+     * @throws DirectoryErrorException if occurs
+     */
+    private Record getRecord( int nIdRecord, List<Integer> listIdsEntry, Map<Integer,Field> mapFieldEntry )
+        throws DirectoryRestException, DirectoryErrorException
+    {
+        Record record = RecordHome.findByPrimaryKey( nIdRecord, getPlugin(  ) );
+        
+        List<RecordField> listRecordField = RecordFieldHome.getRecordFieldSpecificList( listIdsEntry, nIdRecord,
+                getPlugin(  ),mapFieldEntry );
+        record.setListRecordField( listRecordField );
+
+        return record;
+    }
+    
+    
+    /**
+     * return a map containing all fields containing in the list of entry 
+     * @param listIdsEntry a list of id entry
+     * @return a map containing all fields containing in the list of entry 
+     */
+    private  Map<Integer,Field>  getMapFieldEntryByListIdEntry(List<Integer> listIdsEntry)
+    {
+	    Map<Integer,Field> mapFieldEntry=new HashMap<Integer, Field>();
+	    
+	    for ( Integer idEntry : listIdsEntry )
+	    {    
+	   	 
+	   	 
+	   	 List<Field> listField=FieldHome.getFieldListByIdEntry(idEntry, DirectoryUtils.getPlugin(  ));
+	    	for(Field field:listField)
+	    	{
+	    		mapFieldEntry.put(field.getIdField(), field);
+	    	}
+	 
+	    }
+	    return mapFieldEntry;
     }
 }

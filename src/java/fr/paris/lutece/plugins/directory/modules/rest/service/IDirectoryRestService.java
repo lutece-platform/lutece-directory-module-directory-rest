@@ -34,6 +34,7 @@
 package fr.paris.lutece.plugins.directory.modules.rest.service;
 
 import fr.paris.lutece.plugins.directory.business.Directory;
+import fr.paris.lutece.plugins.directory.business.Field;
 import fr.paris.lutece.plugins.directory.business.IEntry;
 import fr.paris.lutece.plugins.directory.business.Record;
 import fr.paris.lutece.plugins.directory.business.RecordField;
@@ -70,18 +71,7 @@ public interface IDirectoryRestService
     Record getRecord( int nIdRecord, HttpServletRequest request )
         throws DirectoryRestException, DirectoryErrorException;
 
-    /**
-     * Gets the record
-     * @param nIdRecord resource id
-     * @param listIdsEntry the list of ids entry
-     * @return the record
-     * @throws DirectoryRestException if occurs
-     * @throws DirectoryErrorException if occurs
-     */
-    Record getRecord( int nIdRecord, List<Integer> listIdsEntry )
-        throws DirectoryRestException, DirectoryErrorException;
-
-    /**
+     /**
      * Finds the list
      * @param nIdDirectory the directory id
      * @param request the HTTP request
